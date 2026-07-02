@@ -54,13 +54,15 @@ class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        try:
-            refresh_token = request.data.get('refresh')
-            if refresh_token:
+        refresh_token = request.data.get('refresh')
+        if refresh_token:
+            try:
                 token = RefreshToken(refresh_token)
-                token.blacklist()
-        except Exception:
-            pass
+            except Exception:
+                # Token invalid/expired — silently ignore, can't blacklist
+                pass
+            else:
+                token.blacklist()  # failures propagate
         return Response({'detail': 'Logout berhasil.'})
 
 
