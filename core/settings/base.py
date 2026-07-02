@@ -1,13 +1,12 @@
 """
 Django base settings for Smart Billiard POS project.
 """
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = 'django-insecure-change-me-in-production'
-
-DEBUG = False
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-me-in-production')
 
 ALLOWED_HOSTS = []
 
