@@ -1,3 +1,5 @@
+from pyexpat import errors
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from users.models import Outlet
@@ -111,6 +113,9 @@ class PricingRule(models.Model):
         # price_per_minute > 0
         if self.price_per_minute is not None and self.price_per_minute <= 0:
             errors['price_per_minute'] = 'Price per minute must be greater than 0.'
+        
+        if self.start_time and self.end_time and self.start_time >= self.end_time:
+            errors['end_time'] = 'End time must be after start time.'
 
         # table_type must belong to same outlet
         if self.table_type_id and self.outlet_id:
