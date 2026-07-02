@@ -35,13 +35,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)
-        user.save()
-        # Assign Role object berdasarkan string role
-        try:
-            role_obj = Role.objects.get(name=validated_data.get('role', 'officer'))
-            user.roles.add(role_obj)
-        except Role.DoesNotExist:
-            pass
+        user.save()  # User.save() syncs self.roles via M2M set
         return user
 
 

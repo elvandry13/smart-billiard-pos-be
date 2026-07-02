@@ -99,6 +99,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         ordering = ['username']
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        # Sync M2M roles with the single role field
+        try:
+            role_obj = Role.objects.get(name=self.role)
+        except Role.DoesNotExist:
+            # If the Role row doesn't exist yet (e.g. during seed), skip sync
+            pass
+        else:
+            self.roles.set([role_obj])
+
     def __str__(self):
         return f"{self.username} ({self.role})"
 
