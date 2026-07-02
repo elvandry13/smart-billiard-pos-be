@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'tables',
     'packages',
     'shifts',
+    'sessions.apps.SessionsConfig',
 ]
 
 MIDDLEWARE = [
