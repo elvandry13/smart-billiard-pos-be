@@ -17,8 +17,8 @@ class TableSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
     def validate(self, data):
-        outlet = data.get('outlet')
-        table_type = data.get('table_type')
+        outlet = data.get('outlet', getattr(self.instance, 'outlet', None))
+        table_type = data.get('table_type', getattr(self.instance, 'table_type', None))
         if outlet and table_type and table_type.outlet_id != outlet.id:
             raise serializers.ValidationError({
                 'table_type': 'Table type must belong to the same outlet.',
