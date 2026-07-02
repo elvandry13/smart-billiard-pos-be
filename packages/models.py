@@ -44,57 +44,78 @@ class Package(models.Model):
     def __str__(self):
         return f'{self.name} ({self.get_type_display()}) — {self.outlet.name}'
 
-    def clean(self):
+    @classmethod
+    def validate_invariants(cls, pkg_type, duration_minutes, fixed_price,
+                            price_per_minute, valid_day_type, specific_date,
+                            valid_start_time, valid_end_time):
+        """Return a dict of field-level errors, or an empty dict.
+
+        Single source of truth for Package business-rule validation.
+        Called by both model-level clean() and serializer validate().
+        """
         errors = {}
 
         # --- Type-specific validation ---
-        if self.type in (self.PackageType.FIXED_DURATION, self.PackageType.HAPPY_HOUR):
-            if not self.duration_minutes:
+        if pkg_type in (cls.PackageType.FIXED_DURATION, cls.PackageType.HAPPY_HOUR):
+            if not duration_minutes:
                 errors['duration_minutes'] = (
-                    f'Duration is required for package type "{self.get_type_display()}".'
+                    f'Duration is required for package type "{pkg_type}".'
                 )
-            if not self.fixed_price:
+            if not fixed_price:
                 errors['fixed_price'] = (
-                    f'Fixed price is required for package type "{self.get_type_display()}".'
+                    f'Fixed price is required for package type "{pkg_type}".'
                 )
 
-        if self.type == self.PackageType.PER_MINUTE:
-            if not self.price_per_minute:
+        if pkg_type == cls.PackageType.PER_MINUTE:
+            if not price_per_minute:
                 errors['price_per_minute'] = (
-                    'Price per minute is required for package type "Per Minute".'
+                    'Price per minute is required for package type "per_minute".'
                 )
 
-        if self.type == self.PackageType.OPEN_LOSS:
-            if self.duration_minutes is not None:
+        if pkg_type == cls.PackageType.OPEN_LOSS:
+            if duration_minutes is not None:
                 errors['duration_minutes'] = (
-                    'Duration must be empty for package type "Open Loss".'
+                    'Duration must be empty for package type "open_loss".'
                 )
-            if self.fixed_price is not None:
+            if fixed_price is not None:
                 errors['fixed_price'] = (
-                    'Fixed price must be empty for package type "Open Loss".'
+                    'Fixed price must be empty for package type "open_loss".'
                 )
 
         # --- Numeric value validation ---
-        if self.duration_minutes is not None and self.duration_minutes <= 0:
+        if duration_minutes is not None and duration_minutes <= 0:
             errors['duration_minutes'] = 'Duration must be greater than 0.'
 
-        if self.fixed_price is not None and self.fixed_price <= 0:
+        if fixed_price is not None and fixed_price <= 0:
             errors['fixed_price'] = 'Fixed price must be greater than 0.'
 
-        if self.price_per_minute is not None and self.price_per_minute <= 0:
+        if price_per_minute is not None and price_per_minute <= 0:
             errors['price_per_minute'] = 'Price per minute must be greater than 0.'
 
         # --- Day type + specific date validation ---
-        if self.valid_day_type == self.DayType.SPECIFIC_DAY and not self.specific_date:
-            errors['specific_date'] = 'Specific date is required when day type is "Specific Day".'
-        elif self.valid_day_type != self.DayType.SPECIFIC_DAY and self.specific_date:
+        if valid_day_type == cls.DayType.SPECIFIC_DAY and not specific_date:
+            errors['specific_date'] = 'Specific date is required when day type is "specific_day".'
+        elif valid_day_type and valid_day_type != cls.DayType.SPECIFIC_DAY and specific_date:
             errors['specific_date'] = (
-                'Specific date should only be set when day type is "Specific Day".'
+                'Specific date should only be set when day type is "specific_day".'
             )
 
         # --- Time range validation ---
-        if self.valid_start_time and self.valid_end_time and self.valid_start_time >= self.valid_end_time:
+        if valid_start_time and valid_end_time and valid_start_time >= valid_end_time:
             errors['valid_end_time'] = 'End time must be after start time.'
 
+        return errors
+
+    def clean(self):
+        errors = self.validate_invariants(
+            pkg_type=self.type,
+            duration_minutes=self.duration_minutes,
+            fixed_price=self.fixed_price,
+            price_per_minute=self.price_per_minute,
+            valid_day_type=self.valid_day_type,
+            specific_date=self.specific_date,
+            valid_start_time=self.valid_start_time,
+            valid_end_time=self.valid_end_time,
+        )
         if errors:
             raise ValidationError(errors)
