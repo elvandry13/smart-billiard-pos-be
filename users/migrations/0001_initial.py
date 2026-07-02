@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('code', models.CharField(db_index=True, max_length=20, unique=True)),
+                ('code', models.CharField(db_index=True, max_length=20)),
                 ('address', models.TextField(blank=True, default='')),
                 ('timezone', models.CharField(default='Asia/Jakarta', max_length=50)),
                 ('is_active', models.BooleanField(default=True)),

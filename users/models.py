@@ -23,7 +23,7 @@ class Outlet(models.Model):
     """Cabang/outlet dalam satu tenant."""
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='outlets')
     name = models.CharField(max_length=100)
-    code = models.CharField(max_length=20, unique=True, db_index=True)
+    code = models.CharField(max_length=20, db_index=True)
     address = models.TextField(blank=True, default='')
     timezone = models.CharField(max_length=50, default='Asia/Jakarta')
     is_active = models.BooleanField(default=True)
