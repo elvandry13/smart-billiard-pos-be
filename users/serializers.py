@@ -38,6 +38,15 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.save()  # User.save() syncs self.roles via M2M set
         return user
 
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password is not None:
+            instance.set_password(password)
+        instance = super().update(instance, validated_data)
+        # instance.save() already called by super().update();
+        # User.save() will sync self.roles if role changed.
+        return instance
+
 
 class UserListSerializer(serializers.ModelSerializer):
     """Serializer ringkas untuk list user."""
