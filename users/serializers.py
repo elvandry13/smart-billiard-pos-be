@@ -31,6 +31,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'phone', 'role', 'password', 'tenant', 'outlet']
 
+    def validate_role(self, value):
+        if not Role.objects.filter(name=value).exists():
+            raise serializers.ValidationError(
+                f"Role '{value}' tidak ditemukan. Pastikan Role sudah di-seed."
+            )
+        return value
+
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = User(**validated_data)
