@@ -78,8 +78,18 @@ def seed_roles_and_permissions(apps, schema_editor):
 def reverse_seed(apps, schema_editor):
     Role = apps.get_model('users', 'Role')
     Permission = apps.get_model('users', 'Permission')
-    Role.objects.all().delete()
-    Permission.objects.all().delete()
+
+    seeded_role_names = ['super_admin', 'owner', 'admin', 'officer']
+    seeded_permission_codenames = [
+        'crud_tenant', 'crud_outlet', 'crud_user_admin_officer',
+        'crud_table', 'crud_pricing_rule', 'crud_package',
+        'manage_play_session', 'print_receipt',
+        'view_history_session', 'view_dashboard_insight',
+        'manage_shift', 'view_audit_log',
+    ]
+
+    Role.objects.filter(name__in=seeded_role_names).delete()
+    Permission.objects.filter(codename__in=seeded_permission_codenames).delete()
 
 
 class Migration(migrations.Migration):
