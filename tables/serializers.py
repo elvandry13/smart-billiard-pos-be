@@ -54,6 +54,11 @@ class PricingRuleSerializer(serializers.ModelSerializer):
 
         if price_per_minute is not None and price_per_minute <= 0:
             errors['price_per_minute'] = 'Price per minute must be greater than 0.'
+        
+        start_time = data.get('start_time', getattr(self.instance, 'start_time', None) if self.instance else None)
+        end_time = data.get('end_time', getattr(self.instance, 'end_time', None) if self.instance else None)
+        if start_time and end_time and start_time >= end_time:
+            errors['end_time'] = 'End time must be after start time.'
 
         if outlet and table_type and table_type.outlet_id != outlet.id:
             errors['table_type'] = 'Table type must belong to the same outlet.'
