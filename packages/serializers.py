@@ -17,6 +17,13 @@ class PackageSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         instance = self.instance
+        if instance is None:
+            # On create, resolve missing fields to their model defaults
+            # so validation sees the same values clean() would.
+            _day_default = Package._meta.get_field('valid_day_type').get_default()
+        else:
+            _day_default = None
+
         errors = Package.validate_invariants(
             pkg_type=data.get('type', getattr(instance, 'type', None) if instance else None),
             duration_minutes=data.get('duration_minutes',
@@ -26,7 +33,7 @@ class PackageSerializer(serializers.ModelSerializer):
             price_per_minute=data.get('price_per_minute',
                                       getattr(instance, 'price_per_minute', None) if instance else None),
             valid_day_type=data.get('valid_day_type',
-                                    getattr(instance, 'valid_day_type', None) if instance else None),
+                                    getattr(instance, 'valid_day_type', _day_default) if instance else _day_default),
             specific_date=data.get('specific_date',
                                    getattr(instance, 'specific_date', None) if instance else None),
             valid_start_time=data.get('valid_start_time',

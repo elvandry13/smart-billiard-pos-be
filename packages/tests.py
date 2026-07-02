@@ -273,6 +273,21 @@ class PackageAPITests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('specific_date', resp.data)
 
+    def test_stray_specific_date_rejected_when_day_type_omitted(self):
+        """Omitting valid_day_type on create → default 'all' → rejects specific_date."""
+        self._auth(self.admin)
+        url = reverse('packages:package-list')
+        resp = self.client.post(url, {
+            'outlet': self.outlet.id,
+            'name': 'Stray Date',
+            'type': 'fixed_duration',
+            'duration_minutes': 60,
+            'fixed_price': '50000.00',
+            'specific_date': '2026-01-01',
+        }, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('specific_date', resp.data)
+
     # --- Validation: Time Range ---
 
     def test_end_time_must_be_after_start_time(self):
