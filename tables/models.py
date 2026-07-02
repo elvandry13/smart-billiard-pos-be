@@ -159,3 +159,5 @@ class AdditionalFee(models.Model):
         super().clean()
         if self.value is not None and self.value <= 0:
             raise ValidationError({'value': 'Value must be greater than 0.'})
+        if self.type == self.FeeType.PERCENTAGE and self.value is not None and self.value > 100:
+            raise ValidationError({'value': 'Percentage value cannot exceed 100.'})
