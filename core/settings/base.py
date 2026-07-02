@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'users',
     'tables',
     'packages',
+    'shifts',
 ]
 
 MIDDLEWARE = [
