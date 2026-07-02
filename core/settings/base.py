@@ -107,8 +107,8 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
-# CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS Configuration — default restrictive; override per environment
+CORS_ALLOWED_ORIGINS = []
 
 # Spectacular Configuration
 SPECTACULAR_SETTINGS = {

@@ -16,6 +16,9 @@ DATABASES = {
     }
 }
 
+# CORS — explicit allow-list from environment
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+
 # Security settings for production
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
