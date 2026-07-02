@@ -167,3 +167,16 @@ class UserViewSet(viewsets.ModelViewSet):
             extra['outlet'] = user.outlet
             extra['tenant'] = user.tenant
         serializer.save(**extra)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        role = serializer.validated_data.get('role', '')
+        # Admin tidak boleh mengubah role menjadi Super Admin atau Owner
+        if user.is_admin and role in [User.RoleEnum.SUPER_ADMIN, User.RoleEnum.OWNER]:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Admin tidak dapat mengubah role user menjadi Super Admin atau Owner.')
+        # Admin tidak boleh memindahkan user ke tenant/outlet lain
+        if user.is_admin:
+            serializer.validated_data['tenant'] = user.tenant
+            serializer.validated_data['outlet'] = user.outlet
+        serializer.save()
