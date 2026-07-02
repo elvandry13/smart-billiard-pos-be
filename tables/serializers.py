@@ -82,3 +82,13 @@ class AdditionalFeeSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError('Value must be greater than 0.')
         return value
+
+    def validate(self, data):
+        fee_type = data.get('type', getattr(self.instance, 'type', None) if self.instance else None)
+        value = data.get('value', getattr(self.instance, 'value', None) if self.instance else None)
+
+        if fee_type == AdditionalFee.FeeType.PERCENTAGE and value is not None and value > 100:
+            raise serializers.ValidationError({
+                'value': 'Percentage value cannot exceed 100.',
+            })
+        return data

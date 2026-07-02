@@ -188,3 +188,14 @@ class AdditionalFeeAPITests(TestCase):
             'value': '-5.00',
         }, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_percentage_over_100_rejected(self):
+        url = reverse('tables:additionalfee-list')
+        resp = self.client.post(url, {
+            'outlet': self.outlet.id,
+            'name': 'Excessive Tax',
+            'type': 'percentage',
+            'value': '500.00',
+        }, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('value', resp.data)
