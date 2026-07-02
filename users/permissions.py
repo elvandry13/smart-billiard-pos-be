@@ -77,6 +77,14 @@ class IsAdminOrSuperAdmin(permissions.BasePermission):
         return request.user.is_authenticated and (request.user.is_super_admin or request.user.is_admin)
 
 
+class IsOfficerOrSuperAdmin(permissions.BasePermission):
+    """Officer atau Super Admin untuk shift management."""
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (
+            request.user.is_super_admin or request.user.is_officer
+        )
+
+
 class TenantOutletScoping(permissions.BasePermission):
     """
     Row-level scoping: memastikan user non-Super-Admin hanya bisa
