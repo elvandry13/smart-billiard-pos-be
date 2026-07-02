@@ -1,0 +1,2243 @@
+openapi: 3.0.3
+info:
+  title: Smart Billiard POS API
+  version: 1.0.0
+  description: Backend API for Smart Billiard POS System
+paths:
+  /api/additional-fees/:
+    get:
+      operationId: additional_fees_list
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: type
+        schema:
+          type: string
+          enum:
+          - fixed
+          - percentage
+        description: |-
+          * `percentage` - Percentage
+          * `fixed` - Fixed
+      tags:
+      - additional-fees
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdditionalFeeList'
+          description: ''
+    post:
+      operationId: additional_fees_create
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      tags:
+      - additional-fees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdditionalFee'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdditionalFee'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdditionalFee'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdditionalFee'
+          description: ''
+  /api/additional-fees/{id}/:
+    get:
+      operationId: additional_fees_retrieve
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this additional fee.
+        required: true
+      tags:
+      - additional-fees
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdditionalFee'
+          description: ''
+    put:
+      operationId: additional_fees_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this additional fee.
+        required: true
+      tags:
+      - additional-fees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdditionalFee'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdditionalFee'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdditionalFee'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdditionalFee'
+          description: ''
+    patch:
+      operationId: additional_fees_partial_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this additional fee.
+        required: true
+      tags:
+      - additional-fees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdditionalFee'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdditionalFee'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdditionalFee'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdditionalFee'
+          description: ''
+    delete:
+      operationId: additional_fees_destroy
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this additional fee.
+        required: true
+      tags:
+      - additional-fees
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Login endpoint — mengembalikan JWT access + refresh token.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Logout endpoint — blacklist refresh token.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/password/change/:
+    post:
+      operationId: auth_password_change_create
+      description: Ganti password user yang sedang login.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePassword'
+          description: ''
+    put:
+      operationId: auth_password_change_update
+      description: Ganti password user yang sedang login.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePassword'
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/outlets/:
+    get:
+      operationId: outlets_list
+      description: CRUD Outlet — hanya Super Admin.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - outlets
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOutletList'
+          description: ''
+    post:
+      operationId: outlets_create
+      description: CRUD Outlet — hanya Super Admin.
+      tags:
+      - outlets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outlet'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Outlet'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Outlet'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+          description: ''
+  /api/outlets/{id}/:
+    get:
+      operationId: outlets_retrieve
+      description: CRUD Outlet — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this outlet.
+        required: true
+      tags:
+      - outlets
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+          description: ''
+    put:
+      operationId: outlets_update
+      description: CRUD Outlet — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this outlet.
+        required: true
+      tags:
+      - outlets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outlet'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Outlet'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Outlet'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+          description: ''
+    patch:
+      operationId: outlets_partial_update
+      description: CRUD Outlet — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this outlet.
+        required: true
+      tags:
+      - outlets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOutlet'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOutlet'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOutlet'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outlet'
+          description: ''
+    delete:
+      operationId: outlets_destroy
+      description: CRUD Outlet — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this outlet.
+        required: true
+      tags:
+      - outlets
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/pricing-rules/:
+    get:
+      operationId: pricing_rules_list
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: query
+        name: day_type
+        schema:
+          type: string
+          enum:
+          - specific_day
+          - weekday
+          - weekend
+        description: |-
+          * `weekday` - Weekday
+          * `weekend` - Weekend
+          * `specific_day` - Specific Day
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: table_type
+        schema:
+          type: integer
+      tags:
+      - pricing-rules
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPricingRuleList'
+          description: ''
+    post:
+      operationId: pricing_rules_create
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      tags:
+      - pricing-rules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PricingRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PricingRule'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingRule'
+          description: ''
+  /api/pricing-rules/{id}/:
+    get:
+      operationId: pricing_rules_retrieve
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pricing rule.
+        required: true
+      tags:
+      - pricing-rules
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingRule'
+          description: ''
+    put:
+      operationId: pricing_rules_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pricing rule.
+        required: true
+      tags:
+      - pricing-rules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PricingRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PricingRule'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingRule'
+          description: ''
+    patch:
+      operationId: pricing_rules_partial_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pricing rule.
+        required: true
+      tags:
+      - pricing-rules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingRule'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingRule'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingRule'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingRule'
+          description: ''
+    delete:
+      operationId: pricing_rules_destroy
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pricing rule.
+        required: true
+      tags:
+      - pricing-rules
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/profile/:
+    get:
+      operationId: profile_retrieve
+      description: View & edit profile user yang sedang login.
+      tags:
+      - profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    put:
+      operationId: profile_update
+      description: View & edit profile user yang sedang login.
+      tags:
+      - profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    patch:
+      operationId: profile_partial_update
+      description: View & edit profile user yang sedang login.
+      tags:
+      - profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/table-types/:
+    get:
+      operationId: table_types_list
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - table-types
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTableTypeList'
+          description: ''
+    post:
+      operationId: table_types_create
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      tags:
+      - table-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TableType'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TableType'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TableType'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableType'
+          description: ''
+  /api/table-types/{id}/:
+    get:
+      operationId: table_types_retrieve
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table type.
+        required: true
+      tags:
+      - table-types
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableType'
+          description: ''
+    put:
+      operationId: table_types_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table type.
+        required: true
+      tags:
+      - table-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TableType'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TableType'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TableType'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableType'
+          description: ''
+    patch:
+      operationId: table_types_partial_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table type.
+        required: true
+      tags:
+      - table-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTableType'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTableType'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTableType'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableType'
+          description: ''
+    delete:
+      operationId: table_types_destroy
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table type.
+        required: true
+      tags:
+      - table-types
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tables/:
+    get:
+      operationId: tables_list
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - available
+          - maintenance
+          - occupied
+          - reserved
+        description: |-
+          * `available` - Available
+          * `occupied` - Occupied
+          * `maintenance` - Maintenance
+          * `reserved` - Reserved
+      - in: query
+        name: table_type
+        schema:
+          type: integer
+      tags:
+      - tables
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTableList'
+          description: ''
+    post:
+      operationId: tables_create
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      tags:
+      - tables
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Table'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Table'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Table'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+          description: ''
+  /api/tables/{id}/:
+    get:
+      operationId: tables_retrieve
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table.
+        required: true
+      tags:
+      - tables
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+          description: ''
+    put:
+      operationId: tables_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table.
+        required: true
+      tags:
+      - tables
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Table'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Table'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Table'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+          description: ''
+    patch:
+      operationId: tables_partial_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table.
+        required: true
+      tags:
+      - tables
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTable'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTable'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTable'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+          description: ''
+    delete:
+      operationId: tables_destroy
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this table.
+        required: true
+      tags:
+      - tables
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tenants/:
+    get:
+      operationId: tenants_list
+      description: CRUD Tenant — hanya Super Admin.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - tenants
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTenantList'
+          description: ''
+    post:
+      operationId: tenants_create
+      description: CRUD Tenant — hanya Super Admin.
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+  /api/tenants/{id}/:
+    get:
+      operationId: tenants_retrieve
+      description: CRUD Tenant — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tenant.
+        required: true
+      tags:
+      - tenants
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+    put:
+      operationId: tenants_update
+      description: CRUD Tenant — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tenant.
+        required: true
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+    patch:
+      operationId: tenants_partial_update
+      description: CRUD Tenant — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tenant.
+        required: true
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTenant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTenant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTenant'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+    delete:
+      operationId: tenants_destroy
+      description: CRUD Tenant — hanya Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tenant.
+        required: true
+      tags:
+      - tenants
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/:
+    get:
+      operationId: users_list
+      description: |-
+        CRUD User.
+        - Super Admin: lihat & kelola semua user.
+        - Admin: lihat & kelola user di outlet-nya saja (Admin + Officer).
+        - Owner: read-only user di tenant-nya.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserListList'
+          description: ''
+    post:
+      operationId: users_create
+      description: |-
+        CRUD User.
+        - Super Admin: lihat & kelola semua user.
+        - Admin: lihat & kelola user di outlet-nya saja (Admin + Officer).
+        - Owner: read-only user di tenant-nya.
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreate'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: users_retrieve
+      description: |-
+        CRUD User.
+        - Super Admin: lihat & kelola semua user.
+        - Admin: lihat & kelola user di outlet-nya saja (Admin + Officer).
+        - Owner: read-only user di tenant-nya.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+          description: ''
+    put:
+      operationId: users_update
+      description: |-
+        CRUD User.
+        - Super Admin: lihat & kelola semua user.
+        - Admin: lihat & kelola user di outlet-nya saja (Admin + Officer).
+        - Owner: read-only user di tenant-nya.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreate'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      description: |-
+        CRUD User.
+        - Super Admin: lihat & kelola semua user.
+        - Admin: lihat & kelola user di outlet-nya saja (Admin + Officer).
+        - Owner: read-only user di tenant-nya.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserCreate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreate'
+          description: ''
+    delete:
+      operationId: users_destroy
+      description: |-
+        CRUD User.
+        - Super Admin: lihat & kelola semua user.
+        - Admin: lihat & kelola user di outlet-nya saja (Admin + Officer).
+        - Owner: read-only user di tenant-nya.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AdditionalFee:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        apply_to:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - outlet
+      - type
+      - updated_at
+      - value
+    ChangePassword:
+      type: object
+      description: Serializer untuk ganti password.
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+        new_password:
+          type: string
+          writeOnly: true
+      required:
+      - new_password
+      - old_password
+    DayTypeEnum:
+      enum:
+      - weekday
+      - weekend
+      - specific_day
+      type: string
+      description: |-
+        * `weekday` - Weekday
+        * `weekend` - Weekend
+        * `specific_day` - Specific Day
+    Login:
+      type: object
+      description: Serializer untuk login — menerima username & password, return JWT
+        token.
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    Outlet:
+      type: object
+      description: Serializer untuk Outlet CRUD.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant:
+          type: integer
+        tenant_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        code:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+        timezone:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - id
+      - name
+      - tenant
+      - tenant_name
+    PaginatedAdditionalFeeList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalFee'
+    PaginatedOutletList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Outlet'
+    PaginatedPricingRuleList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingRule'
+    PaginatedTableList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Table'
+    PaginatedTableTypeList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TableType'
+    PaginatedTenantList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tenant'
+    PaginatedUserListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserList'
+    PatchedAdditionalFee:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        apply_to:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedOutlet:
+      type: object
+      description: Serializer untuk Outlet CRUD.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tenant:
+          type: integer
+        tenant_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        code:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+        timezone:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedPricingRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        table_type:
+          type: integer
+          nullable: true
+          description: Leave blank to apply to all table types.
+        name:
+          type: string
+          maxLength: 100
+        day_type:
+          $ref: '#/components/schemas/DayTypeEnum'
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        priority:
+          type: integer
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedTable:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        table_type:
+          type: integer
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedTableType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedTenant:
+      type: object
+      description: Serializer untuk Tenant CRUD.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        code:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedUserCreate:
+      type: object
+      description: Serializer untuk membuat user baru (oleh Admin/Super Admin).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        password:
+          type: string
+          writeOnly: true
+        tenant:
+          type: integer
+          nullable: true
+        outlet:
+          type: integer
+          nullable: true
+    PatchedUserProfile:
+      type: object
+      description: Serializer untuk profile user yang sedang login.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        tenant_name:
+          type: string
+          readOnly: true
+        outlet_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+    PricingRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        table_type:
+          type: integer
+          nullable: true
+          description: Leave blank to apply to all table types.
+        name:
+          type: string
+          maxLength: 100
+        day_type:
+          $ref: '#/components/schemas/DayTypeEnum'
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        priority:
+          type: integer
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - end_time
+      - id
+      - name
+      - outlet
+      - price_per_minute
+      - start_time
+      - updated_at
+    RoleEnum:
+      enum:
+      - super_admin
+      - owner
+      - admin
+      - officer
+      type: string
+      description: |-
+        * `super_admin` - Super Admin
+        * `owner` - Owner
+        * `admin` - Admin
+        * `officer` - Officer
+    StatusEnum:
+      enum:
+      - available
+      - occupied
+      - maintenance
+      - reserved
+      type: string
+      description: |-
+        * `available` - Available
+        * `occupied` - Occupied
+        * `maintenance` - Maintenance
+        * `reserved` - Reserved
+    Table:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        table_type:
+          type: integer
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - outlet
+      - table_type
+      - updated_at
+    TableType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - outlet
+    Tenant:
+      type: object
+      description: Serializer untuk Tenant CRUD.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        code:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - id
+      - name
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TypeEnum:
+      enum:
+      - percentage
+      - fixed
+      type: string
+      description: |-
+        * `percentage` - Percentage
+        * `fixed` - Fixed
+    UserCreate:
+      type: object
+      description: Serializer untuk membuat user baru (oleh Admin/Super Admin).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        password:
+          type: string
+          writeOnly: true
+        tenant:
+          type: integer
+          nullable: true
+        outlet:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - password
+      - username
+    UserList:
+      type: object
+      description: Serializer ringkas untuk list user.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 50
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        is_active:
+          type: boolean
+        date_joined:
+          type: string
+          format: date-time
+      required:
+      - id
+      - username
+    UserProfile:
+      type: object
+      description: Serializer untuk profile user yang sedang login.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        tenant_name:
+          type: string
+          readOnly: true
+        outlet_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - id
+      - is_active
+      - outlet_name
+      - role
+      - tenant_name
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
