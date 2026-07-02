@@ -3,6 +3,8 @@ from .base import *
 
 DEBUG = False
 
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 DATABASES = {
@@ -17,6 +19,7 @@ DATABASES = {
 }
 
 # CORS — explicit allow-list from environment
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
 
 # Security settings for production
