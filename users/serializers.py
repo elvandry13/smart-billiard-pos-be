@@ -1,0 +1,82 @@
+from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
+from .models import User, Tenant, Outlet, Role
+
+
+class LoginSerializer(serializers.Serializer):
+    """Serializer untuk login — menerima username & password, return JWT token."""
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer untuk profile user yang sedang login."""
+    tenant_name = serializers.CharField(source='tenant.name', read_only=True)
+    outlet_name = serializers.CharField(source='outlet.name', read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'email', 'phone', 'role',
+            'tenant_name', 'outlet_name', 'is_active', 'date_joined',
+        ]
+        read_only_fields = fields
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    """Serializer untuk membuat user baru (oleh Admin/Super Admin)."""
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'phone', 'role', 'password', 'tenant', 'outlet']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        # Assign Role object berdasarkan string role
+        try:
+            role_obj = Role.objects.get(name=validated_data.get('role', 'officer'))
+            user.roles.add(role_obj)
+        except Role.DoesNotExist:
+            pass
+        return user
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """Serializer ringkas untuk list user."""
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'role', 'is_active', 'date_joined']
+
+
+class TenantSerializer(serializers.ModelSerializer):
+    """Serializer untuk Tenant CRUD."""
+    class Meta:
+        model = Tenant
+        fields = ['id', 'name', 'code', 'is_active', 'created_at']
+        read_only_fields = ['created_at']
+
+
+class OutletSerializer(serializers.ModelSerializer):
+    """Serializer untuk Outlet CRUD."""
+    tenant_name = serializers.CharField(source='tenant.name', read_only=True)
+
+    class Meta:
+        model = Outlet
+        fields = ['id', 'tenant', 'tenant_name', 'name', 'code', 'address', 'timezone', 'is_active', 'created_at']
+        read_only_fields = ['created_at']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Serializer untuk ganti password."""
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Password lama tidak sesuai.')
+        return value
