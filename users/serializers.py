@@ -20,7 +20,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'phone', 'role',
             'tenant_name', 'outlet_name', 'is_active', 'date_joined',
         ]
-        read_only_fields = fields
+        read_only_fields = ['id', 'username', 'role', 'tenant_name', 'outlet_name', 'is_active', 'date_joined']
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
