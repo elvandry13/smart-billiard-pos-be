@@ -13,8 +13,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         username = os.environ.get('SUPER_ADMIN_USERNAME', 'superadmin')
         email = os.environ.get('SUPER_ADMIN_EMAIL', 'superadmin@example.com')
-        password = os.environ.get('SUPER_ADMIN_PASSWORD', 'SuperAdmin123!')
+        password = os.environ.get('SUPER_ADMIN_PASSWORD')
         phone = os.environ.get('SUPER_ADMIN_PHONE', '')
+
+        if not password:
+            self.stderr.write(self.style.ERROR('SUPER_ADMIN_PASSWORD environment variable tidak ditemukan.'))
+            return
 
         if User.objects.filter(username=username).exists():
             self.stdout.write(self.style.WARNING(f'Super Admin "{username}" sudah ada, dilewati.'))
@@ -39,5 +43,4 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Super Admin "{username}" berhasil dibuat!'))
         self.stdout.write(f'  Username: {username}')
-        self.stdout.write(f'  Password: {password}')
         self.stdout.write(self.style.WARNING('  [!] Harap ganti password setelah login pertama!'))
