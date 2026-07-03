@@ -74,10 +74,11 @@ class ShiftViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         old_status = serializer.instance.status
         shift = serializer.save()
+        is_closing = old_status == Shift.Status.OPEN and shift.status == Shift.Status.CLOSED
         AuditService.log(
             user_id=self.request.user.id,
             outlet_id=shift.outlet_id,
-            action='update_shift',
+            action='close_shift' if is_closing else 'update_shift',
             object_type='Shift',
             object_id=shift.id,
             changes={'status': {'old': old_status, 'new': shift.status}},
