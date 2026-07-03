@@ -45,6 +45,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
         try:
             payment = PaymentService.create_payment(
                 session_id=serializer.validated_data['session_id'],
+                outlet_id=request.user.outlet_id,
                 method=serializer.validated_data.get(
                     'method', Payment.Method.CASH,
                 ),

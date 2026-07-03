@@ -79,6 +79,7 @@ class ReceiptAPITests(TestCase):
         session.refresh_from_db()
         PaymentService.create_payment(
             session_id=session.id,
+            outlet_id=self.outlet.id,
             method=Payment.Method.CASH,
             amount=session.total_amount,
             created_by_id=self.officer.id,

@@ -14,12 +14,18 @@ class PaymentService:
     def create_payment(
         *,
         session_id: int,
+        outlet_id: int,
         method: str,
         amount,
         created_by_id: int,
         gateway_reference: str = '',
     ) -> Payment:
-        session = PlaySession.objects.select_for_update().get(id=session_id)
+        session = PlaySession.objects.select_for_update().filter(
+            id=session_id, outlet_id=outlet_id,
+        ).first()
+
+        if session is None:
+            raise ValidationError({'session': 'Session not found.'})
 
         if session.status != PlaySession.Status.COMPLETED:
             raise ValidationError({'session': 'Payment is only allowed for completed sessions.'})
