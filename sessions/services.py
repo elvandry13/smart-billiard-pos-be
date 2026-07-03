@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction, IntegrityError
 from django.utils import timezone
 
@@ -39,14 +39,20 @@ class SessionService:
         - Set meja jadi occupied
         """
         # Validasi shift
-        shift = Shift.objects.select_related('outlet').get(pk=shift_id)
+        try:
+            shift = Shift.objects.select_related('outlet').get(pk=shift_id)
+        except Shift.DoesNotExist:
+            raise ValidationError({'shift': 'Shift does not exist.'})
         if shift.status != Shift.Status.OPEN:
             raise ValidationError({'shift': 'Shift is not open.'})
         if shift.outlet_id != outlet_id:
             raise ValidationError({'shift': 'Shift does not belong to this outlet.'})
 
         # Validasi meja
-        table = Table.objects.select_related('table_type').get(pk=initial_table_id)
+        try:
+            table = Table.objects.select_related('table_type').get(pk=initial_table_id)
+        except Table.DoesNotExist:
+            raise ValidationError({'initial_table': 'Table does not exist.'})
         if table.outlet_id != outlet_id:
             raise ValidationError({'initial_table': 'Table does not belong to this outlet.'})
         if table.status != Table.Status.AVAILABLE:
@@ -55,7 +61,10 @@ class SessionService:
         # Validasi package (jika ada)
         package = None
         if package_id:
-            package = Package.objects.get(pk=package_id)
+            try:
+                package = Package.objects.get(pk=package_id)
+            except Package.DoesNotExist:
+                raise ValidationError({'package': 'Package does not exist.'})
             if package.outlet_id != outlet_id:
                 raise ValidationError({'package': 'Package does not belong to this outlet.'})
             if not package.is_active:
@@ -126,7 +135,10 @@ class SessionService:
         - Validasi meja baru available
         - Set meja lama available, meja baru occupied
         """
-        session = PlaySession.objects.select_related('package').get(pk=session_id)
+        try:
+            session = PlaySession.objects.select_related('package').get(pk=session_id)
+        except PlaySession.DoesNotExist:
+            raise ValidationError({'session': 'Session does not exist.'})
         if session.status != PlaySession.Status.RUNNING:
             raise ValidationError({'session': 'Session is not running.'})
 
@@ -139,7 +151,10 @@ class SessionService:
             raise ValidationError({'session': 'No active table log found for this session.'})
 
         old_table = active_log.table
-        new_table = Table.objects.select_related('table_type').get(pk=new_table_id)
+        try:
+            new_table = Table.objects.select_related('table_type').get(pk=new_table_id)
+        except Table.DoesNotExist:
+            raise ValidationError({'new_table': 'Table does not exist.'})
 
         if new_table.outlet_id != session.outlet_id:
             raise ValidationError({'new_table': 'New table does not belong to this outlet.'})
@@ -213,7 +228,10 @@ class SessionService:
         Tutup sesi: tutup segmen aktif, hitung subtotal + additional fee,
         set status session completed, set meja available.
         """
-        session = PlaySession.objects.select_related('outlet', 'package').get(pk=session_id)
+        try:
+            session = PlaySession.objects.select_related('outlet', 'package').get(pk=session_id)
+        except PlaySession.DoesNotExist:
+            raise ValidationError({'session': 'Session does not exist.'})
         if session.status != PlaySession.Status.RUNNING:
             raise ValidationError({'session': 'Session is not running.'})
 
@@ -282,7 +300,10 @@ class SessionService:
         Batalkan sesi: tutup semua segmen (amount = 0), set meja available,
         set status cancelled.
         """
-        session = PlaySession.objects.get(pk=session_id)
+        try:
+            session = PlaySession.objects.get(pk=session_id)
+        except PlaySession.DoesNotExist:
+            raise ValidationError({'session': 'Session does not exist.'})
         if session.status != PlaySession.Status.RUNNING:
             raise ValidationError({'session': 'Session is not running.'})
 
