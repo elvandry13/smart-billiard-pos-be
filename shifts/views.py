@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
@@ -85,11 +86,12 @@ class ShiftViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         shift_id = instance.id
         outlet_id = instance.outlet_id
-        instance.delete()
-        AuditService.log(
-            user_id=self.request.user.id,
-            outlet_id=outlet_id,
-            action='delete_shift',
-            object_type='Shift',
-            object_id=shift_id,
-        )
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=outlet_id,
+                action='delete_shift',
+                object_type='Shift',
+                object_id=shift_id,
+            )

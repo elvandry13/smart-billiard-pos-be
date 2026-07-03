@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import viewsets
 
 from users.permissions import IsAdminOrSuperAdmin
@@ -68,11 +69,12 @@ class OutletScopedViewSet(viewsets.ModelViewSet):
         action = f'delete_{model_name.lower()}'
         obj_id = instance.id
         outlet_id = getattr(instance, 'outlet_id', None)
-        instance.delete()
-        AuditService.log(
-            user_id=self.request.user.id,
-            outlet_id=outlet_id,
-            action=action,
-            object_type=model_name,
-            object_id=obj_id,
-        )
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=outlet_id,
+                action=action,
+                object_type=model_name,
+                object_id=obj_id,
+            )

@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -158,14 +159,15 @@ class TenantViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         tenant_id = instance.id
-        instance.delete()
-        AuditService.log(
-            user_id=self.request.user.id,
-            outlet_id=None,
-            action='delete_tenant',
-            object_type='Tenant',
-            object_id=tenant_id,
-        )
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=None,
+                action='delete_tenant',
+                object_type='Tenant',
+                object_id=tenant_id,
+            )
 
 
 class OutletViewSet(viewsets.ModelViewSet):
@@ -205,14 +207,15 @@ class OutletViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         outlet_id = instance.id
-        instance.delete()
-        AuditService.log(
-            user_id=self.request.user.id,
-            outlet_id=outlet_id,
-            action='delete_outlet',
-            object_type='Outlet',
-            object_id=outlet_id,
-        )
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=outlet_id,
+                action='delete_outlet',
+                object_type='Outlet',
+                object_id=outlet_id,
+            )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -293,11 +296,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         user_id = instance.id
         outlet_id = getattr(instance, 'outlet_id', None)
-        instance.delete()
-        AuditService.log(
-            user_id=self.request.user.id,
-            outlet_id=outlet_id,
-            action='delete_user',
-            object_type='User',
-            object_id=user_id,
-        )
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=outlet_id,
+                action='delete_user',
+                object_type='User',
+                object_id=user_id,
+            )
