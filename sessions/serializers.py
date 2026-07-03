@@ -106,8 +106,10 @@ class PlaySessionListSerializer(serializers.ModelSerializer):
         return obj.package.name if obj.package else None
 
     def get_active_table_name(self, obj):
-        active_log = obj.table_logs.filter(ended_at__isnull=True).select_related('table').first()
-        return active_log.table.name if active_log and active_log.table else None
+        for log in obj.table_logs.all():
+            if log.ended_at is None:
+                return log.table.name if log.table else None
+        return None
 
 
 class PlaySessionDetailSerializer(serializers.ModelSerializer):
