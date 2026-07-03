@@ -91,6 +91,11 @@ class PlaySessionViewSet(
             data['officer_start_id'] = user.id
         else:
             data['officer_start_id'] = request.data.get('officer_start_id', user.id)
+            if 'outlet_id' not in data:
+                return Response(
+                    {'outlet_id': 'This field is required.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         try:
             session = SessionService.open_session(
@@ -185,7 +190,7 @@ class PlaySessionViewSet(
         serializer = SessionTableLogSerializer(logs, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['get'], url_path='table-logs/(?P<log_pk>[^/.]+)')
+    @action(detail=True, methods=['get'], url_path='table-logs/(?P<log_pk>[^/.])')
     def table_log_detail(self, request, pk=None, log_pk=None):
         """GET /api/sessions/{id}/table-logs/{log_pk}/ — Detail satu table log."""
         log = SessionTableLog.objects.filter(
