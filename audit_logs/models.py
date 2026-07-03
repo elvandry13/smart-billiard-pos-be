@@ -4,13 +4,21 @@ from django.db import models
 class AuditLog(models.Model):
     """Mencatat setiap aksi sensitif di sistem."""
 
-    class Action(models.TextChoices):
-        CREATE = 'create', 'Create'
-        UPDATE = 'update', 'Update'
-        DELETE = 'delete', 'Delete'
-        CANCEL_SESSION = 'cancel_session', 'Cancel Session'
-        OPEN_SHIFT = 'open_shift', 'Open Shift'
-        CLOSE_SHIFT = 'close_shift', 'Close Shift'
+    class Action:
+        """Dokumentasi action yang umum digunakan (tidak membatasi — field bebas string)."""
+        CREATE = 'create'
+        UPDATE = 'update'
+        DELETE = 'delete'
+        CANCEL_SESSION = 'cancel_session'
+        OPEN_SHIFT = 'open_shift'
+        CLOSE_SHIFT = 'close_shift'
+        OPEN_SESSION = 'open_session'
+        END_SESSION = 'end_session'
+        TRANSFER_TABLE = 'transfer_table'
+        LOGIN = 'login'
+        LOGOUT = 'logout'
+        UPDATE_PROFILE = 'update_profile'
+        CHANGE_PASSWORD = 'change_password'
 
     user = models.ForeignKey(
         'users.User',
@@ -24,7 +32,7 @@ class AuditLog(models.Model):
         null=True,
         related_name='audit_logs',
     )
-    action = models.CharField(max_length=32, choices=Action.choices)
+    action = models.CharField(max_length=64)
     object_type = models.CharField(max_length=64)
     object_id = models.IntegerField(null=True, blank=True)
     changes = models.JSONField(default=dict)

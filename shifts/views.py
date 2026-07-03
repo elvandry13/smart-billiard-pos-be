@@ -71,6 +71,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         )
 
     def perform_update(self, serializer):
+        old_status = serializer.instance.status
         shift = serializer.save()
         AuditService.log(
             user_id=self.request.user.id,
@@ -78,7 +79,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
             action='update_shift',
             object_type='Shift',
             object_id=shift.id,
-            changes={'status': shift.status},
+            changes={'status': {'old': old_status, 'new': shift.status}},
         )
 
     def perform_destroy(self, instance):

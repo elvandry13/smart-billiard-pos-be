@@ -28,7 +28,8 @@ class AuditService:
             action: Tipe aksi (dari AuditLog.Action).
             object_type: Nama model yang diubah (e.g. 'PricingRule').
             object_id: ID objek yang diubah (nullable).
-            changes: Dict perubahan {"field": {"old": ..., "new": ...}}.
+            changes: Dict perubahan — format bebas. Untuk update: {"field": {"old": ..., "new": ...}}.
+                      Untuk create/delete/action: {"field": value} atau {} jika tidak ada perubahan.
             notes: Catatan tambahan (e.g. cancel reason).
 
         Returns:
