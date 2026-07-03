@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.db import models
+from django.db.models import OuterRef, Subquery
 from django.db.models.functions import TruncDate, TruncWeek
 
 from sessions.models import PlaySession
@@ -146,28 +147,37 @@ class DashboardService:
     ) -> list[dict]:
         """
         Get top customers by total spend, grouped by customer_phone.
+        Walk-in customers (empty phone) are excluded.
         Returns list of {customer_phone, customer_name, visit_count, total_spend}.
         """
         base_qs = DashboardService._build_base_qs(outlet_ids, date_from, date_to)
+        # Exclude walk-in customers so they are not collapsed into one bucket
+        identifiable_qs = base_qs.exclude(customer_phone='')
 
-        grouped = base_qs.values(
+        # Subquery: latest customer_name per phone from the same filtered set
+        latest_name_sq = (
+            base_qs
+            .filter(customer_phone=OuterRef('customer_phone'))
+            .order_by('-started_at')
+            .values('customer_name')[:1]
+        )
+
+        grouped = identifiable_qs.values(
             'customer_phone',
         ).annotate(
             visit_count=models.Count('id'),
             total_spend=models.Sum('total_amount'),
+            latest_name=Subquery(latest_name_sq),
         ).order_by('-total_spend')[:limit]
 
-        result = []
-        for item in grouped:
-            # Get the most recent customer_name for this phone
-            latest_name = base_qs.filter(
-                customer_phone=item['customer_phone'],
-            ).order_by('-started_at').values_list('customer_name', flat=True).first()
-            result.append({
+        result = [
+            {
                 'customer_phone': item['customer_phone'],
-                'customer_name': latest_name or '',
+                'customer_name': item['latest_name'] or '',
                 'visit_count': item['visit_count'],
                 'total_spend': item['total_spend'] or Decimal('0.00'),
-            })
+            }
+            for item in grouped
+        ]
 
         return result
