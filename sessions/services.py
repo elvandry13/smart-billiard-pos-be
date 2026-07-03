@@ -377,6 +377,18 @@ class SessionService:
         # Cari pricing rule yang cocok berdasarkan waktu sekarang
         now = timezone.now().time()
         today = timezone.now().date()
+        today_weekday = today.weekday()  # 0=Mon ... 6=Sun
+
+        # Build day_type filter
+        if today_weekday < 5:
+            current_day_type = PricingRule.DayType.WEEKDAY
+        else:
+            current_day_type = PricingRule.DayType.WEEKEND
+
+        day_type_filter = models.Q(day_type=current_day_type) | models.Q(
+            day_type=PricingRule.DayType.SPECIFIC_DAY,
+            specific_date=today,
+        )
 
         rule = PricingRule.objects.filter(
             outlet_id=table.outlet_id,
@@ -384,6 +396,7 @@ class SessionService:
             start_time__lte=now,
             end_time__gte=now,
         ).filter(
+            day_type_filter,
             models.Q(table_type=table.table_type) | models.Q(table_type__isnull=True),
         ).order_by('-priority').first()
 
