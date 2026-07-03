@@ -189,7 +189,7 @@ class PlaySessionViewSet(
             action='end_session',
             object_type='PlaySession',
             object_id=session.id,
-            changes={'total_amount': str(session.total_amount) if session.total_amount else None},
+            changes={'total_amount': str(session.total_amount) if session.total_amount is not None else None},
         )
         serializer_out = PlaySessionDetailSerializer(session)
         return Response(serializer_out.data, status=status.HTTP_200_OK)
