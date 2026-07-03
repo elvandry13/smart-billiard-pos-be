@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'sessions.apps.SessionsConfig',
     'payments',
     'receipts',
+    'audit_logs.apps.AuditLogsConfig',
 ]
 
 MIDDLEWARE = [

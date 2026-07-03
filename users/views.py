@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,6 +16,7 @@ from .serializers import (
     ChangePasswordSerializer,
 )
 from .permissions import IsSuperAdmin, IsAdminOrSuperAdminOrOwner, IsAdminOrSuperAdmin
+from audit_logs.services import AuditService
 
 
 class LoginView(generics.GenericAPIView):
@@ -42,6 +44,13 @@ class LoginView(generics.GenericAPIView):
             )
 
         refresh = RefreshToken.for_user(user)
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=getattr(user, 'outlet_id', None),
+            action='login',
+            object_type='User',
+            object_id=user.id,
+        )
         return Response({
             'access': str(refresh.access_token),
             'refresh': str(refresh),
@@ -54,6 +63,7 @@ class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        user = request.user
         refresh_token = request.data.get('refresh')
         if refresh_token:
             try:
@@ -63,6 +73,13 @@ class LogoutView(generics.GenericAPIView):
                 pass
             else:
                 token.blacklist()  # failures propagate
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=getattr(user, 'outlet_id', None),
+            action='logout',
+            object_type='User',
+            object_id=user.id,
+        )
         return Response({'detail': 'Logout berhasil.'})
 
 
@@ -73,6 +90,16 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def perform_update(self, serializer):
+        user = serializer.save()
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=getattr(user, 'outlet_id', None),
+            action='update_profile',
+            object_type='User',
+            object_id=user.id,
+        )
 
 
 class ChangePasswordView(generics.GenericAPIView):
@@ -92,6 +119,13 @@ class ChangePasswordView(generics.GenericAPIView):
         user = request.user
         user.set_password(serializer.validated_data['new_password'])
         user.save()
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=getattr(user, 'outlet_id', None),
+            action='change_password',
+            object_type='User',
+            object_id=user.id,
+        )
         return Response({'detail': 'Password berhasil diubah.'})
 
 
@@ -102,6 +136,38 @@ class TenantViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsSuperAdmin]
     filterset_fields = ['is_active']
     search_fields = ['name', 'code']
+
+    def perform_create(self, serializer):
+        tenant = serializer.save()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=None,
+            action='create_tenant',
+            object_type='Tenant',
+            object_id=tenant.id,
+        )
+
+    def perform_update(self, serializer):
+        tenant = serializer.save()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=None,
+            action='update_tenant',
+            object_type='Tenant',
+            object_id=tenant.id,
+        )
+
+    def perform_destroy(self, instance):
+        tenant_id = instance.id
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=None,
+                action='delete_tenant',
+                object_type='Tenant',
+                object_id=tenant_id,
+            )
 
 
 class OutletViewSet(viewsets.ModelViewSet):
@@ -118,6 +184,38 @@ class OutletViewSet(viewsets.ModelViewSet):
         if tenant_id:
             qs = qs.filter(tenant_id=tenant_id)
         return qs
+
+    def perform_create(self, serializer):
+        outlet = serializer.save()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=outlet.id,
+            action='create_outlet',
+            object_type='Outlet',
+            object_id=outlet.id,
+        )
+
+    def perform_update(self, serializer):
+        outlet = serializer.save()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=outlet.id,
+            action='update_outlet',
+            object_type='Outlet',
+            object_id=outlet.id,
+        )
+
+    def perform_destroy(self, instance):
+        outlet_id = instance.id
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=outlet_id,
+                action='delete_outlet',
+                object_type='Outlet',
+                object_id=outlet_id,
+            )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -166,7 +264,14 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.is_admin:
             extra['outlet'] = user.outlet
             extra['tenant'] = user.tenant
-        serializer.save(**extra)
+        new_user = serializer.save(**extra)
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=getattr(new_user, 'outlet_id', None),
+            action='create_user',
+            object_type='User',
+            object_id=new_user.id,
+        )
 
     def perform_update(self, serializer):
         user = self.request.user
@@ -179,4 +284,24 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.is_admin:
             serializer.validated_data['tenant'] = user.tenant
             serializer.validated_data['outlet'] = user.outlet
-        serializer.save()
+        updated_user = serializer.save()
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=getattr(updated_user, 'outlet_id', None),
+            action='update_user',
+            object_type='User',
+            object_id=updated_user.id,
+        )
+
+    def perform_destroy(self, instance):
+        user_id = instance.id
+        outlet_id = getattr(instance, 'outlet_id', None)
+        with transaction.atomic():
+            instance.delete()
+            AuditService.log(
+                user_id=self.request.user.id,
+                outlet_id=outlet_id,
+                action='delete_user',
+                object_type='User',
+                object_id=user_id,
+            )
