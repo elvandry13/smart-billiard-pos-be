@@ -120,7 +120,6 @@ class PlaySessionViewSet(
             action='open_session',
             object_type='PlaySession',
             object_id=session.id,
-            changes={'customer_name': session.customer_name},
         )
         serializer_out = PlaySessionDetailSerializer(session)
         return Response(serializer_out.data, status=status.HTTP_201_CREATED)
