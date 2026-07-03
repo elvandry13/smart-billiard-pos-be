@@ -164,6 +164,18 @@ class ReceiptAPITests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['count'], 0)
 
+    def test_cross_outlet_receipt_creation_rejected(self):
+        """Officer tidak bisa generate receipt untuk session outlet lain."""
+        session = self._create_paid_session()
+        self.client.force_authenticate(user=self.other_officer)
+
+        url = reverse('receipt-list')
+        resp = self.client.post(url, {'session_id': session.id}, format='json')
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('session', resp.data)
+        self.assertEqual(Receipt.objects.count(), 0)
+
     def test_super_admin_can_see_all(self):
         """SuperAdmin bisa lihat semua receipt."""
         session = self._create_paid_session()
