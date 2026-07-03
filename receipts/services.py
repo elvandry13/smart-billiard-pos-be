@@ -90,8 +90,7 @@ class ReceiptService:
 
             # Generate PDF
             pdf_bytes = generate_receipt_pdf(session, receipt)
-            date_part = timezone.now().strftime('%Y/%m')
-            filename = f'receipts/{date_part}/{invoice_number}.pdf'
+            filename = f'{invoice_number}.pdf'
             receipt.pdf_file.save(filename, ContentFile(pdf_bytes), save=False)
             receipt.save()
 
