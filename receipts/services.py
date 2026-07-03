@@ -39,7 +39,7 @@ class ReceiptService:
         return f'{outlet.code}-{date_part}-{seq.last_sequence:04d}'
 
     @staticmethod
-    def create_receipt(*, session_id: int, user_id: int) -> Receipt:
+    def create_receipt(*, session_id: int, outlet_id: int, user_id: int) -> Receipt:
         """
         Buat receipt PDF untuk session yang sudah paid.
 
@@ -55,12 +55,12 @@ class ReceiptService:
         """
         from users.models import User
 
-        try:
-            session = PlaySession.objects.select_related(
-                'outlet',
-                'initial_table',
-            ).get(pk=session_id)
-        except PlaySession.DoesNotExist:
+        session = PlaySession.objects.select_related(
+            'outlet',
+            'initial_table',
+        ).filter(pk=session_id, outlet_id=outlet_id).first()
+
+        if session is None:
             raise ValidationError({'session': 'Session does not exist.'})
 
         if session.status != PlaySession.Status.COMPLETED:

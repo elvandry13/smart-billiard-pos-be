@@ -51,6 +51,7 @@ class ReceiptViewSet(viewsets.ModelViewSet):
         try:
             receipt = ReceiptService.create_receipt(
                 session_id=serializer.validated_data['session_id'],
+                outlet_id=request.user.outlet_id,
                 user_id=request.user.id,
             )
         except ValidationError as e:
