@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, IntegrityError
+from django.db.models import Q
 from django.utils import timezone
 
 from tables.models import Table
@@ -193,6 +194,20 @@ class SessionTableLog(models.Model):
         indexes = [
             models.Index(fields=['session', 'ended_at']),
             models.Index(fields=['table', 'ended_at']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['session'],
+                condition=Q(ended_at__isnull=True),
+                name='uq_active_segment_per_session',
+                violation_error_message='Session already has an active segment.',
+            ),
+            models.UniqueConstraint(
+                fields=['table'],
+                condition=Q(ended_at__isnull=True),
+                name='uq_active_segment_per_table',
+                violation_error_message='Table is already in use by another active session segment.',
+            ),
         ]
 
     def __str__(self):

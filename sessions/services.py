@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.utils import timezone
 
 from tables.models import Table, PricingRule, AdditionalFee
@@ -80,14 +80,28 @@ class SessionService:
                 package=package,
             )
 
-            # Buat SessionTableLog pertama
-            SessionTableLog.objects.create(
-                session=session,
-                table=table,
-                rate_source_type=rate_source_type,
-                rate_source_snapshot=rate_snapshot,
+            # Validate: no active segment for this session or table
+            active_errors = SessionTableLog.validate_invariants(
+                session_id=session.pk,
+                table_id=table.pk,
                 started_at=timezone.now(),
             )
+            if active_errors:
+                raise ValidationError(active_errors)
+
+            # Buat SessionTableLog pertama
+            try:
+                SessionTableLog.objects.create(
+                    session=session,
+                    table=table,
+                    rate_source_type=rate_source_type,
+                    rate_source_snapshot=rate_snapshot,
+                    started_at=timezone.now(),
+                )
+            except IntegrityError as e:
+                raise ValidationError(
+                    {'table': 'Table is already in use or session already has an active segment.'}
+                ) from e
 
             # Set meja occupied
             table.status = Table.Status.OCCUPIED
@@ -157,14 +171,28 @@ class SessionService:
                 package=session.package,
             )
 
-            # Buat segmen baru
-            new_log = SessionTableLog.objects.create(
-                session=session,
-                table=new_table,
-                rate_source_type=rate_source_type,
-                rate_source_snapshot=rate_snapshot,
+            # Validate: no active segment for table (session segment was just closed above)
+            active_errors = SessionTableLog.validate_invariants(
+                session_id=session.pk,
+                table_id=new_table.pk,
                 started_at=now,
             )
+            if active_errors:
+                raise ValidationError(active_errors)
+
+            # Buat segmen baru
+            try:
+                new_log = SessionTableLog.objects.create(
+                    session=session,
+                    table=new_table,
+                    rate_source_type=rate_source_type,
+                    rate_source_snapshot=rate_snapshot,
+                    started_at=now,
+                )
+            except IntegrityError as e:
+                raise ValidationError(
+                    {'new_table': 'Table is already in use or session already has an active segment.'}
+                ) from e
 
             # Set meja baru occupied
             new_table.status = Table.Status.OCCUPIED
