@@ -122,7 +122,7 @@ def generate_receipt_pdf(session, receipt) -> bytes:
             _format_idr(log.amount),
         ])
 
-    tbl = Table(table_data, colWidths=[18 * mm, 14 * mm, 18 * mm, 20 * mm])
+    tbl = Table(table_data, colWidths=[17 * mm, 14 * mm, 17 * mm, 18 * mm])
     tbl.setStyle(TableStyle([
         ('FONTSIZE', (0, 0), (-1, -1), 6),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
