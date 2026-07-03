@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 from .models import PlaySession
+from .filters import SessionFilter
 from .serializers import (
     PlaySessionListSerializer,
     PlaySessionDetailSerializer,
@@ -40,7 +41,7 @@ class PlaySessionViewSet(
     ).prefetch_related('table_logs__table').all()
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'outlet', 'shift', 'package']
+    filterset_class = SessionFilter
     search_fields = ['customer_name', 'customer_phone']
     ordering_fields = ['started_at', 'ended_at', 'total_amount']
 
