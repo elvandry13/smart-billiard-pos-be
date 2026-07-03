@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'payments',
     'receipts',
     'audit_logs.apps.AuditLogsConfig',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

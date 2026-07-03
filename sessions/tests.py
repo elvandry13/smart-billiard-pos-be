@@ -490,3 +490,77 @@ class SessionAPITests(TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp.data['results']), 0)  # tidak ada session untuk officer ini
+
+    # ---------------------------------------------------------------
+    # Filter: customer_phone partial match (icontains)
+    # ---------------------------------------------------------------
+    def test_filter_by_customer_phone_partial(self):
+        session = PlaySession.objects.create(
+            outlet=self.outlet, shift=self.shift, customer_name='Phone Test',
+            customer_phone='081234567890', initial_table=self.table,
+            officer_start=self.officer, status=PlaySession.Status.RUNNING,
+        )
+        SessionTableLog.objects.create(
+            session=session, table=self.table,
+            rate_source_type=SessionTableLog.RateSourceType.PRICING_RULE,
+            rate_source_snapshot={'price_per_minute': '2.00'},
+            started_at=timezone.now(),
+        )
+        self._auth(self.officer)
+        url = reverse('playsession-list') + '?customer_phone=3456'
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data['results']), 1)
+        self.assertEqual(resp.data['results'][0]['customer_phone'], '081234567890')
+
+    def test_filter_by_customer_phone_no_match(self):
+        session = PlaySession.objects.create(
+            outlet=self.outlet, shift=self.shift, customer_name='Phone Test',
+            customer_phone='081234567890', initial_table=self.table,
+            officer_start=self.officer, status=PlaySession.Status.RUNNING,
+        )
+        SessionTableLog.objects.create(
+            session=session, table=self.table,
+            rate_source_type=SessionTableLog.RateSourceType.PRICING_RULE,
+            rate_source_snapshot={'price_per_minute': '2.00'},
+            started_at=timezone.now(),
+        )
+        self._auth(self.officer)
+        url = reverse('playsession-list') + '?customer_phone=9999'
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data['results']), 0)
+
+    def test_filter_by_started_at_range(self):
+        now = timezone.now()
+        session1 = PlaySession.objects.create(
+            outlet=self.outlet, shift=self.shift, customer_name='Old',
+            customer_phone='0811', initial_table=self.table,
+            officer_start=self.officer, status=PlaySession.Status.RUNNING,
+        )
+        # started_at has auto_now_add=True, so we must update it after creation
+        PlaySession.objects.filter(pk=session1.pk).update(started_at=now - timedelta(days=10))
+        session2 = PlaySession.objects.create(
+            outlet=self.outlet, shift=self.shift, customer_name='Recent',
+            customer_phone='0812', initial_table=self.table2,
+            officer_start=self.officer, status=PlaySession.Status.RUNNING,
+        )
+        PlaySession.objects.filter(pk=session2.pk).update(started_at=now - timedelta(days=1))
+        SessionTableLog.objects.create(
+            session=session1, table=self.table,
+            rate_source_type=SessionTableLog.RateSourceType.PRICING_RULE,
+            rate_source_snapshot={'price_per_minute': '2.00'},
+            started_at=session1.started_at,
+        )
+        SessionTableLog.objects.create(
+            session=session2, table=self.table2,
+            rate_source_type=SessionTableLog.RateSourceType.PRICING_RULE,
+            rate_source_snapshot={'price_per_minute': '2.00'},
+            started_at=session2.started_at,
+        )
+        self._auth(self.officer)
+        url = reverse('playsession-list') + f'?started_at_after={now.date() - timedelta(days=3)}'
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data['results']), 1)
+        self.assertEqual(resp.data['results'][0]['customer_name'], 'Recent')
