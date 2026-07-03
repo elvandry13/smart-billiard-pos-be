@@ -8,7 +8,7 @@ class InvoiceSequenceAdmin(admin.ModelAdmin):
     list_display = ['outlet', 'date', 'last_sequence']
     list_filter = ['outlet', 'date']
     search_fields = ['outlet__name', 'outlet__code']
-    readonly_fields = ['outlet', 'date']
+    readonly_fields = ['outlet', 'date', 'last_sequence']
 
 
 @admin.register(Receipt)
