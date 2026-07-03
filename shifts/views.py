@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from shifts.models import Shift
 from shifts.serializers import ShiftSerializer
 from users.permissions import IsOfficerOrSuperAdmin
+from audit_logs.services import AuditService
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -54,9 +55,40 @@ class ShiftViewSet(viewsets.ModelViewSet):
         user = self.request.user
         # Super admin passes outlet+officer explicitly; officer auto-assigned.
         if user.is_super_admin:
-            serializer.save()
+            shift = serializer.save()
         else:
-            serializer.save(
+            shift = serializer.save(
                 officer=user,
                 outlet=user.outlet,
             )
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=shift.outlet_id,
+            action='open_shift',
+            object_type='Shift',
+            object_id=shift.id,
+            changes={'status': shift.status},
+        )
+
+    def perform_update(self, serializer):
+        shift = serializer.save()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=shift.outlet_id,
+            action='update_shift',
+            object_type='Shift',
+            object_id=shift.id,
+            changes={'status': shift.status},
+        )
+
+    def perform_destroy(self, instance):
+        shift_id = instance.id
+        outlet_id = instance.outlet_id
+        instance.delete()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=outlet_id,
+            action='delete_shift',
+            object_type='Shift',
+            object_id=shift_id,
+        )

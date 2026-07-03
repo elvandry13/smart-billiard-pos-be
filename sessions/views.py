@@ -17,6 +17,7 @@ from .serializers import (
     CancelSessionRequestSerializer,
 )
 from .services import SessionService
+from audit_logs.services import AuditService
 from users.permissions import IsOfficerOrSuperAdmin
 
 
@@ -113,6 +114,14 @@ class PlaySessionViewSet(
 
         # Refresh with prefetched
         session = self.get_queryset().get(pk=session.pk)
+        AuditService.log(
+            user_id=request.user.id,
+            outlet_id=session.outlet_id,
+            action='open_session',
+            object_type='PlaySession',
+            object_id=session.id,
+            changes={'customer_name': session.customer_name},
+        )
         serializer_out = PlaySessionDetailSerializer(session)
         return Response(serializer_out.data, status=status.HTTP_201_CREATED)
 
@@ -140,6 +149,14 @@ class PlaySessionViewSet(
             return Response(e.message_dict if hasattr(e, 'message_dict') else {'detail': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        AuditService.log(
+            user_id=request.user.id,
+            outlet_id=new_log.session.outlet_id,
+            action='transfer_table',
+            object_type='PlaySession',
+            object_id=data['session_id'],
+            changes={'new_table_id': new_log.table_id},
+        )
         serializer_out = SessionTableLogSerializer(new_log)
         return Response(serializer_out.data, status=status.HTTP_200_OK)
 
@@ -167,6 +184,14 @@ class PlaySessionViewSet(
                             status=status.HTTP_400_BAD_REQUEST)
 
         session = self.get_queryset().get(pk=session.pk)
+        AuditService.log(
+            user_id=request.user.id,
+            outlet_id=session.outlet_id,
+            action='end_session',
+            object_type='PlaySession',
+            object_id=session.id,
+            changes={'total_amount': str(session.total_amount) if session.total_amount else None},
+        )
         serializer_out = PlaySessionDetailSerializer(session)
         return Response(serializer_out.data, status=status.HTTP_200_OK)
 
@@ -195,6 +220,14 @@ class PlaySessionViewSet(
                             status=status.HTTP_400_BAD_REQUEST)
 
         session = self.get_queryset().get(pk=session.pk)
+        AuditService.log(
+            user_id=request.user.id,
+            outlet_id=session.outlet_id,
+            action='cancel_session',
+            object_type='PlaySession',
+            object_id=session.id,
+            notes=data['cancel_reason'],
+        )
         serializer_out = PlaySessionDetailSerializer(session)
         return Response(serializer_out.data, status=status.HTTP_200_OK)
 

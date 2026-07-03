@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 
 from users.permissions import IsAdminOrSuperAdmin
+from audit_logs.services import AuditService
 
 
 class OutletScopedViewSet(viewsets.ModelViewSet):
@@ -28,13 +29,50 @@ class OutletScopedViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         if user.is_super_admin:
-            serializer.save()
+            obj = serializer.save()
         else:
-            serializer.save(outlet=user.outlet)
+            obj = serializer.save(outlet=user.outlet)
+
+        # Tentukan action name dari model class
+        model_name = self.queryset.model.__name__
+        action = f'create_{model_name.lower()}'
+        outlet_id = getattr(obj, 'outlet_id', None)
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=outlet_id,
+            action=action,
+            object_type=model_name,
+            object_id=obj.id,
+        )
 
     def perform_update(self, serializer):
         user = self.request.user
         if user.is_super_admin:
-            serializer.save()
+            obj = serializer.save()
         else:
-            serializer.save(outlet=user.outlet)
+            obj = serializer.save(outlet=user.outlet)
+
+        model_name = self.queryset.model.__name__
+        action = f'update_{model_name.lower()}'
+        outlet_id = getattr(obj, 'outlet_id', None)
+        AuditService.log(
+            user_id=user.id,
+            outlet_id=outlet_id,
+            action=action,
+            object_type=model_name,
+            object_id=obj.id,
+        )
+
+    def perform_destroy(self, instance):
+        model_name = self.queryset.model.__name__
+        action = f'delete_{model_name.lower()}'
+        obj_id = instance.id
+        outlet_id = getattr(instance, 'outlet_id', None)
+        instance.delete()
+        AuditService.log(
+            user_id=self.request.user.id,
+            outlet_id=outlet_id,
+            action=action,
+            object_type=model_name,
+            object_id=obj_id,
+        )
