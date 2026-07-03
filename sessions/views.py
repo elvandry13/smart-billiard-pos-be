@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from rest_framework import viewsets, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -20,7 +20,11 @@ from .services import SessionService
 from users.permissions import IsOfficerOrSuperAdmin
 
 
-class PlaySessionViewSet(viewsets.ModelViewSet):
+class PlaySessionViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     """
     ViewSet untuk PlaySession.
 
