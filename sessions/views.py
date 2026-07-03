@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
-from .models import PlaySession, SessionTableLog
+from .models import PlaySession
 from .serializers import (
     PlaySessionListSerializer,
     PlaySessionDetailSerializer,
@@ -124,6 +124,12 @@ class PlaySessionViewSet(
 
         data = serializer.validated_data
 
+        # Verify session belongs to user's outlet
+        try:
+            self.get_queryset().get(pk=data['session_id'])
+        except PlaySession.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         try:
             new_log = SessionService.transfer_table(
                 session_id=data['session_id'],
@@ -144,6 +150,12 @@ class PlaySessionViewSet(
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
+
+        # Verify session belongs to user's outlet
+        try:
+            self.get_queryset().get(pk=data['session_id'])
+        except PlaySession.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             session = SessionService.end_session(
@@ -166,6 +178,12 @@ class PlaySessionViewSet(
 
         data = serializer.validated_data
 
+        # Verify session belongs to user's outlet
+        try:
+            self.get_queryset().get(pk=data['session_id'])
+        except PlaySession.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         try:
             session = SessionService.cancel_session(
                 session_id=data['session_id'],
@@ -183,9 +201,9 @@ class PlaySessionViewSet(
     @action(detail=True, methods=['get'], url_path='table-logs')
     def table_logs(self, request, pk=None):
         """GET /api/sessions/{id}/table-logs/ — List semua table logs untuk satu sesi."""
-        logs = SessionTableLog.objects.filter(
-            session_id=pk,
-        ).select_related('table').order_by('started_at')
+        # Resolve session through scoped queryset first
+        session = self.get_object()
+        logs = session.table_logs.select_related('table').order_by('started_at')
 
         serializer = SessionTableLogSerializer(logs, many=True)
         return Response(serializer.data)
@@ -193,10 +211,9 @@ class PlaySessionViewSet(
     @action(detail=True, methods=['get'], url_path='table-logs/(?P<log_pk>[^/.])')
     def table_log_detail(self, request, pk=None, log_pk=None):
         """GET /api/sessions/{id}/table-logs/{log_pk}/ — Detail satu table log."""
-        log = SessionTableLog.objects.filter(
-            session_id=pk,
-            pk=log_pk,
-        ).select_related('table').first()
+        # Resolve session through scoped queryset first
+        session = self.get_object()
+        log = session.table_logs.filter(pk=log_pk).select_related('table').first()
 
         if not log:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
