@@ -48,15 +48,13 @@ class SessionService:
         if shift.outlet_id != outlet_id:
             raise ValidationError({'shift': 'Shift does not belong to this outlet.'})
 
-        # Validasi meja
+        # Validasi meja (lightweight: existence + outlet only)
         try:
-            table = Table.objects.select_related('table_type').get(pk=initial_table_id)
+            table = Table.objects.only('id', 'outlet_id').get(pk=initial_table_id)
         except Table.DoesNotExist:
             raise ValidationError({'initial_table': 'Table does not exist.'})
         if table.outlet_id != outlet_id:
             raise ValidationError({'initial_table': 'Table does not belong to this outlet.'})
-        if table.status != Table.Status.AVAILABLE:
-            raise ValidationError({'initial_table': f'Table is not available (current status: {table.status}).'})
 
         # Validasi package (jika ada)
         package = None
@@ -71,13 +69,20 @@ class SessionService:
                 raise ValidationError({'package': 'Package is not active.'})
 
         with transaction.atomic():
+            # Lock table row dan validasi availability secara atomik
+            locked_table = Table.objects.select_for_update().select_related('table_type').get(pk=table.pk)
+            if locked_table.status != Table.Status.AVAILABLE:
+                raise ValidationError({
+                    'initial_table': f'Table is not available (current status: {locked_table.status}).',
+                })
+
             # Buat PlaySession
             session = PlaySession.objects.create(
                 outlet_id=outlet_id,
                 shift=shift,
                 customer_name=customer_name,
                 customer_phone=customer_phone,
-                initial_table=table,
+                initial_table=locked_table,
                 package=package,
                 status=PlaySession.Status.RUNNING,
                 officer_start_id=officer_start_id,
@@ -85,14 +90,14 @@ class SessionService:
 
             # Tentukan rate_source untuk segmen pertama
             rate_source_type, rate_snapshot = SessionService._resolve_rate_source(
-                table=table,
+                table=locked_table,
                 package=package,
             )
 
             # Validate: no active segment for this session or table
             active_errors = SessionTableLog.validate_invariants(
                 session_id=session.pk,
-                table_id=table.pk,
+                table_id=locked_table.pk,
                 started_at=timezone.now(),
             )
             if active_errors:
@@ -102,7 +107,7 @@ class SessionService:
             try:
                 SessionTableLog.objects.create(
                     session=session,
-                    table=table,
+                    table=locked_table,
                     rate_source_type=rate_source_type,
                     rate_source_snapshot=rate_snapshot,
                     started_at=timezone.now(),
@@ -113,8 +118,8 @@ class SessionService:
                 ) from e
 
             # Set meja occupied
-            table.status = Table.Status.OCCUPIED
-            table.save(update_fields=['status'])
+            locked_table.status = Table.Status.OCCUPIED
+            locked_table.save(update_fields=['status'])
 
         return session
 
@@ -151,19 +156,24 @@ class SessionService:
             raise ValidationError({'session': 'No active table log found for this session.'})
 
         old_table = active_log.table
+
+        # Validasi meja baru (lightweight: existence + outlet only)
         try:
-            new_table = Table.objects.select_related('table_type').get(pk=new_table_id)
+            new_table = Table.objects.only('id', 'outlet_id').get(pk=new_table_id)
         except Table.DoesNotExist:
             raise ValidationError({'new_table': 'Table does not exist.'})
-
         if new_table.outlet_id != session.outlet_id:
             raise ValidationError({'new_table': 'New table does not belong to this outlet.'})
-        if new_table.status != Table.Status.AVAILABLE:
-            raise ValidationError({'new_table': f'Table is not available (current status: {new_table.status}).'})
 
         now = timezone.now()
 
         with transaction.atomic():
+            # Lock + validasi availability new_table secara atomik
+            locked_new_table = Table.objects.select_for_update().select_related('table_type').get(pk=new_table.pk)
+            if locked_new_table.status != Table.Status.AVAILABLE:
+                raise ValidationError({
+                    'new_table': f'Table is not available (current status: {locked_new_table.status}).',
+                })
             # Tutup segmen lama
             duration = (now - active_log.started_at).total_seconds() / 60.0
             amount = SessionService._calculate_amount(
@@ -182,14 +192,14 @@ class SessionService:
 
             # Tentukan rate_source untuk segmen baru
             rate_source_type, rate_snapshot = SessionService._resolve_rate_source(
-                table=new_table,
+                table=locked_new_table,
                 package=session.package,
             )
 
             # Validate: no active segment for table (session segment was just closed above)
             active_errors = SessionTableLog.validate_invariants(
                 session_id=session.pk,
-                table_id=new_table.pk,
+                table_id=locked_new_table.pk,
                 started_at=now,
             )
             if active_errors:
@@ -199,7 +209,7 @@ class SessionService:
             try:
                 new_log = SessionTableLog.objects.create(
                     session=session,
-                    table=new_table,
+                    table=locked_new_table,
                     rate_source_type=rate_source_type,
                     rate_source_snapshot=rate_snapshot,
                     started_at=now,
@@ -210,8 +220,8 @@ class SessionService:
                 ) from e
 
             # Set meja baru occupied
-            new_table.status = Table.Status.OCCUPIED
-            new_table.save(update_fields=['status'])
+            locked_new_table.status = Table.Status.OCCUPIED
+            locked_new_table.save(update_fields=['status'])
 
         return new_log
 
