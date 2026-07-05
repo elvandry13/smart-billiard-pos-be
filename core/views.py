@@ -84,9 +84,13 @@ class OutletScopedViewSet(viewsets.ModelViewSet):
             )
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-@throttle_classes([])
+import logging
+
+logger = logging.getLogger(__name__)
+
+`@api_view`(['GET'])
+`@permission_classes`([AllowAny])
+`@throttle_classes`([])
 def health_check(request):
     """Health check endpoint — no auth, no throttle.
 
@@ -97,10 +101,12 @@ def health_check(request):
     try:
         connection.ensure_connection()
     except Exception:
+        logger.exception("Health check DB connection failed")
         db_status = 'error'
 
+    status_code = 200 if db_status == 'connected' else 503
     return JsonResponse({
         'status': 'ok' if db_status == 'connected' else 'degraded',
         'database': db_status,
         'timestamp': timezone.now().isoformat(),
-    })
+    }, status=status_code)
