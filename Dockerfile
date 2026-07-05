@@ -82,9 +82,6 @@ COPY --chown=django:django . .
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Collect static files during build
-RUN python manage.py collectstatic --noinput
-
 # Create log directory
 RUN mkdir -p /app/logs && chown -R django:django /app/logs
 
