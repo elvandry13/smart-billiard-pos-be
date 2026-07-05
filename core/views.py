@@ -1,5 +1,9 @@
-from django.db import transaction
+from django.db import transaction, connection
+from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework import viewsets
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.permissions import AllowAny
 
 from users.permissions import IsAdminOrSuperAdmin
 from audit_logs.services import AuditService
@@ -78,3 +82,25 @@ class OutletScopedViewSet(viewsets.ModelViewSet):
                 object_type=model_name,
                 object_id=obj_id,
             )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+@throttle_classes([])
+def health_check(request):
+    """Health check endpoint — no auth, no throttle.
+
+    Mengecek koneksi database dan mengembalikan status JSON.
+    Endpoint: GET /api/health/
+    """
+    db_status = 'connected'
+    try:
+        connection.ensure_connection()
+    except Exception:
+        db_status = 'error'
+
+    return JsonResponse({
+        'status': 'ok' if db_status == 'connected' else 'degraded',
+        'database': db_status,
+        'timestamp': timezone.now().isoformat(),
+    })

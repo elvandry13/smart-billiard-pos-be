@@ -4,7 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
 from django.contrib.auth import authenticate
+from core.throttles import AuthRateThrottle
 from .models import User, Tenant, Outlet
 from .serializers import (
     LoginSerializer,
@@ -22,6 +24,7 @@ from audit_logs.services import AuditService
 class LoginView(generics.GenericAPIView):
     """Login endpoint — mengembalikan JWT access + refresh token."""
     permission_classes = [AllowAny]
+    throttle_classes = [AuthRateThrottle]
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -61,6 +64,7 @@ class LoginView(generics.GenericAPIView):
 class LogoutView(generics.GenericAPIView):
     """Logout endpoint — blacklist refresh token."""
     permission_classes = [IsAuthenticated]
+    throttle_classes = [AuthRateThrottle]
 
     def post(self, request):
         user = request.user
@@ -305,3 +309,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 object_type='User',
                 object_id=user_id,
             )
+
+
+class ThrottledTokenRefreshView(TokenRefreshView):
+    """Token refresh endpoint dengan rate limiting."""
+    throttle_classes = [AuthRateThrottle]
