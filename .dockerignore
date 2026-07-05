@@ -36,6 +36,26 @@ Thumbs.db
 # Logs
 /logs/
 
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI
+.github/
+
+# Tests & coverage
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+
 # Docs
 PRD.md
 implementation_plan.md
+README.md
+schema.yaml
