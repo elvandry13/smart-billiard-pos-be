@@ -1,6 +1,12 @@
 """
 Unit test untuk app users: model, auth, JWT, viewset, permission, dan custom actions.
 """
+from io import StringIO
+from secrets import token_urlsafe
+from unittest.mock import patch
+
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -93,6 +99,58 @@ class RolePermissionModelTest(TestCase):
         r.permissions.set([p1, p2])
         self.assertEqual(r.permissions.count(), 2)
         self.assertIn(p1, r.permissions.all())
+
+
+class SeedPhase1CommandTest(TestCase):
+    """Test management command seed_phase1 tanpa menyimpan credential di repository."""
+
+    def _phase1_env(self):
+        return {
+            'PHASE1_SUPER_ADMIN_PASSWORD': token_urlsafe(24),
+            'PHASE1_OWNER_PASSWORD': token_urlsafe(24),
+            'PHASE1_ADMIN_PASSWORD': token_urlsafe(24),
+            'PHASE1_OFFICER_PASSWORD': token_urlsafe(24),
+        }
+
+    def test_seed_phase1_requires_password_envs(self):
+        with patch.dict('os.environ', {}, clear=True):
+            with self.assertRaises(CommandError) as ctx:
+                call_command('seed_phase1', stdout=StringIO(), stderr=StringIO())
+
+        self.assertIn('PHASE1_SUPER_ADMIN_PASSWORD', str(ctx.exception))
+        self.assertFalse(User.objects.filter(username='phase1_super_admin').exists())
+
+    def test_seed_phase1_creates_minimal_active_data_and_is_idempotent(self):
+        env = self._phase1_env()
+
+        with patch.dict('os.environ', env, clear=True):
+            call_command('seed_phase1', stdout=StringIO(), stderr=StringIO())
+            call_command('seed_phase1', stdout=StringIO(), stderr=StringIO())
+
+        tenant = Tenant.objects.get(code='PHASE1')
+        outlet = Outlet.objects.get(tenant=tenant, code='P1O1')
+        self.assertTrue(tenant.is_active)
+        self.assertTrue(outlet.is_active)
+
+        expected_users = {
+            'phase1_super_admin': (User.RoleEnum.SUPER_ADMIN, None, None, True, True),
+            'phase1_owner': (User.RoleEnum.OWNER, tenant, None, False, False),
+            'phase1_admin': (User.RoleEnum.ADMIN, tenant, outlet, False, False),
+            'phase1_officer': (User.RoleEnum.OFFICER, tenant, outlet, False, False),
+        }
+
+        for username, (role, expected_tenant, expected_outlet, is_staff, is_superuser) in expected_users.items():
+            user = User.objects.get(username=username)
+            self.assertTrue(user.is_active)
+            self.assertEqual(user.role, role)
+            self.assertEqual(user.tenant, expected_tenant)
+            self.assertEqual(user.outlet, expected_outlet)
+            self.assertEqual(user.is_staff, is_staff)
+            self.assertEqual(user.is_superuser, is_superuser)
+            self.assertTrue(user.check_password(env[f'PHASE1_{role.upper()}_PASSWORD']))
+            self.assertTrue(user.roles.filter(name=role).exists())
+
+        self.assertEqual(User.objects.filter(username__in=expected_users.keys()).count(), 4)
 
 
 # ──────────────────────────────────────────────

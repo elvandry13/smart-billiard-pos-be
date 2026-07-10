@@ -116,13 +116,36 @@ python manage.py migrate
 
 ### 5. Seed Super Admin (Opsional)
 
-Membuat user super admin awal beserta tenant dan outlet default:
+Membuat user super admin awal:
 
 ```bash
 python manage.py seed_superadmin
 ```
 
 Gunakan kredensial yang sudah diisi di `.env` (`SUPER_ADMIN_USERNAME`, `SUPER_ADMIN_PASSWORD`).
+
+### 5b. Seed Minimal Phase 1 Frontend E2E (Opsional)
+
+Membuat data minimal untuk validasi frontend Phase 1 end-to-end:
+
+- 1 tenant aktif.
+- 1 outlet aktif.
+- 4 user aktif: `super_admin`, `owner`, `admin`, `officer`.
+
+```bash
+python manage.py seed_phase1
+```
+
+Command ini membaca password dari environment variable lokal:
+
+- `PHASE1_SUPER_ADMIN_PASSWORD`
+- `PHASE1_OWNER_PASSWORD`
+- `PHASE1_ADMIN_PASSWORD`
+- `PHASE1_OFFICER_PASSWORD`
+
+Username, email, tenant, dan outlet bisa dioverride melalui variable `PHASE1_*` di `.env.example`.
+
+> **Keamanan:** credential test nyata tidak boleh disimpan di repository. Simpan di `.env` lokal yang tidak di-commit, dokumentasi internal terpisah, atau password manager.
 
 ### 6. Jalankan Server Development
 
@@ -225,5 +248,5 @@ python manage.py test payments
 
 - **Environment**: Gunakan `DJANGO_ENV=development` — settings development otomatis dari `core/settings/development.py` (DEBUG=True, SQLite, CORS terbuka).
 - **Production**: Atur `DJANGO_ENV=production` dan `DATABASE_URL` ke PostgreSQL. Jangan lupa `DJANGO_DEBUG=False`.
-- **Super Admin**: Seed awal via `seed_superadmin` akan membuat Tenant, Outlet, Role, Permission, dan User super admin.
+- **Super Admin**: Seed awal via `seed_superadmin` akan membuat user super admin. Untuk data minimal tenant/outlet + 4 role frontend Phase 1, gunakan `seed_phase1`.
 - **Media Files**: File PDF struk disimpan di `MEDIA_ROOT`. Di development, file dilayani langsung oleh Django.
