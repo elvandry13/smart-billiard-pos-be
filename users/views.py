@@ -211,7 +211,7 @@ class OutletViewSet(viewsets.ModelViewSet):
             instance.delete()
             AuditService.log(
                 user_id=self.request.user.id,
-                outlet_id=outlet_id,
+                outlet_id=None,
                 action='delete_outlet',
                 object_type='Outlet',
                 object_id=outlet_id,

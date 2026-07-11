@@ -11,6 +11,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
+from audit_logs.models import AuditLog
 from .models import User, Tenant, Outlet, Role, Permission
 
 
@@ -294,6 +295,22 @@ class TenantOutLetViewSetTest(APITestCase):
         }, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Outlet.objects.filter(code='OB').exists())
+
+    def test_superadmin_delete_outlet_logs_without_deleted_fk(self):
+        self._auth(self.superadmin)
+        outlet = Outlet.objects.create(
+            name='Outlet Delete',
+            code='OD',
+            tenant=self.tenant,
+            timezone='Asia/Jakarta',
+        )
+
+        resp = self.client.delete(reverse('outlet-detail', args=[outlet.id]))
+
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Outlet.objects.filter(id=outlet.id).exists())
+        log = AuditLog.objects.get(action='delete_outlet', object_id=outlet.id)
+        self.assertIsNone(log.outlet_id)
 
 
 class UserViewSetPermissionTest(APITestCase):
