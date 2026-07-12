@@ -12,12 +12,16 @@ class OutletScopedViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if getattr(self, 'swagger_fake_view', False):
+            return qs
         user = self.request.user
         if user.is_super_admin:
             return qs
         return qs.filter(outlet=user.outlet)
 
     def get_serializer(self, *args, **kwargs):
+        if getattr(self, 'swagger_fake_view', False):
+            return super().get_serializer(*args, **kwargs)
         user = self.request.user
         if not user.is_super_admin:
             data = kwargs.get('data')

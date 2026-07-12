@@ -145,4 +145,5 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Smart Billiard POS API',
     'DESCRIPTION': 'Backend API for Smart Billiard POS System',
     'VERSION': '1.0.0',
+    'COMPONENT_SPLIT_REQUEST': True,
 }

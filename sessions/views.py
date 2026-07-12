@@ -51,6 +51,8 @@ class PlaySessionViewSet(
         return [IsOfficerOrSuperAdmin()]
 
     def get_serializer_class(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return PlaySessionDetailSerializer
         if self.action == 'list':
             return PlaySessionListSerializer
         elif self.action == 'retrieve':
@@ -61,6 +63,8 @@ class PlaySessionViewSet(
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if getattr(self, 'swagger_fake_view', False):
+            return qs
         user = self.request.user
 
         if user.is_super_admin:

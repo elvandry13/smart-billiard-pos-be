@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from rest_framework.fields import CharField
 
 from tables.models import Table
 from packages.models import Package
@@ -32,6 +34,7 @@ class SessionTableLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_table_name(self, obj):
         return obj.table.name if obj.table else None
 
@@ -56,6 +59,7 @@ class SessionTableLogNestedSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_table_name(self, obj):
         return obj.table.name if obj.table else None
 
@@ -93,18 +97,23 @@ class PlaySessionListSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_outlet_name(self, obj):
         return obj.outlet.name if obj.outlet else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_officer_start_name(self, obj):
         return obj.officer_start.username if obj.officer_start else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_initial_table_name(self, obj):
         return obj.initial_table.name if obj.initial_table else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_package_name(self, obj):
         return obj.package.name if obj.package else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_active_table_name(self, obj):
         for log in obj.table_logs.all():
             if log.ended_at is None:
@@ -153,21 +162,27 @@ class PlaySessionDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_outlet_name(self, obj):
         return obj.outlet.name if obj.outlet else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_officer_start_name(self, obj):
         return obj.officer_start.username if obj.officer_start else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_officer_end_name(self, obj):
         return obj.officer_end.username if obj.officer_end else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_initial_table_name(self, obj):
         return obj.initial_table.name if obj.initial_table else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_package_name(self, obj):
         return obj.package.name if obj.package else None
 
+    @extend_schema_field(CharField(allow_null=True))
     def get_shift_officer_name(self, obj):
         return obj.shift.officer.username if obj.shift and obj.shift.officer else None
 

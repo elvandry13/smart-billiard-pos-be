@@ -24,6 +24,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         """Inject outlet & officer ke data untuk non-super-admin sebelum validasi."""
+        if getattr(self, 'swagger_fake_view', False):
+            return super().get_serializer(*args, **kwargs)
         user = self.request.user
         if not user.is_super_admin:
             data = kwargs.get('data')
@@ -36,6 +38,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if getattr(self, 'swagger_fake_view', False):
+            return qs
         user = self.request.user
 
         # Super Admin — lihat semua
