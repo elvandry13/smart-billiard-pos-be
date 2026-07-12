@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -21,6 +21,7 @@ class DashboardViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsOwnerOrAdmin]
+    serializer_class = serializers.Serializer
 
     def _get_outlet_ids(self):
         """Resolve outlet scope based on user role."""

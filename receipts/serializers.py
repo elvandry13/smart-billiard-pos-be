@@ -1,5 +1,7 @@
 """Serializers untuk Receipt API."""
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from rest_framework.fields import CharField
 
 from receipts.models import Receipt
 
@@ -24,6 +26,7 @@ class ReceiptListSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(CharField())
     def get_printed_by_name(self, obj):
         return obj.printed_by.username
 
@@ -56,6 +59,7 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(CharField())
     def get_printed_by_name(self, obj):
         return obj.printed_by.username
 

@@ -55,13 +55,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdditionalFee'
+              $ref: '#/components/schemas/AdditionalFeeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/AdditionalFee'
+              $ref: '#/components/schemas/AdditionalFeeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AdditionalFee'
+              $ref: '#/components/schemas/AdditionalFeeRequest'
         required: true
       security:
       - jwtAuth: []
@@ -110,13 +110,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdditionalFee'
+              $ref: '#/components/schemas/AdditionalFeeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/AdditionalFee'
+              $ref: '#/components/schemas/AdditionalFeeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AdditionalFee'
+              $ref: '#/components/schemas/AdditionalFeeRequest'
         required: true
       security:
       - jwtAuth: []
@@ -143,13 +143,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedAdditionalFee'
+              $ref: '#/components/schemas/PatchedAdditionalFeeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedAdditionalFee'
+              $ref: '#/components/schemas/PatchedAdditionalFeeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedAdditionalFee'
+              $ref: '#/components/schemas/PatchedAdditionalFeeRequest'
       security:
       - jwtAuth: []
       responses:
@@ -176,6 +176,74 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/audit-logs/:
+    get:
+      operationId: audit_logs_list
+      description: ViewSet read-only untuk AuditLog — hanya Admin & Super Admin.
+      parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+      - in: query
+        name: object_type
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: user
+        schema:
+          type: integer
+      tags:
+      - audit-logs
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/audit-logs/{id}/:
+    get:
+      operationId: audit_logs_retrieve
+      description: ViewSet read-only untuk AuditLog — hanya Admin & Super Admin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this audit log.
+        required: true
+      tags:
+      - audit-logs
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+          description: ''
   /api/auth/login/:
     post:
       operationId: auth_login_create
@@ -186,13 +254,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
         required: true
       security:
       - jwtAuth: []
@@ -225,23 +293,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChangePassword'
+              $ref: '#/components/schemas/ChangePasswordRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ChangePassword'
+              $ref: '#/components/schemas/ChangePasswordRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ChangePassword'
+              $ref: '#/components/schemas/ChangePasswordRequest'
         required: true
       security:
       - jwtAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChangePassword'
-          description: ''
+          description: No response body
     put:
       operationId: auth_password_change_update
       description: Ganti password user yang sedang login.
@@ -251,23 +315,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChangePassword'
+              $ref: '#/components/schemas/ChangePasswordRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ChangePassword'
+              $ref: '#/components/schemas/ChangePasswordRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ChangePassword'
+              $ref: '#/components/schemas/ChangePasswordRequest'
         required: true
       security:
       - jwtAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChangePassword'
-          description: ''
+          description: No response body
   /api/auth/refresh/:
     post:
       operationId: auth_refresh_create
@@ -280,13 +340,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TokenRefresh'
+              $ref: '#/components/schemas/TokenRefreshRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TokenRefresh'
+              $ref: '#/components/schemas/TokenRefreshRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TokenRefresh'
+              $ref: '#/components/schemas/TokenRefreshRequest'
         required: true
       responses:
         '200':
@@ -295,6 +355,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenRefresh'
           description: ''
+  /api/dashboard/revenue-trend/:
+    get:
+      operationId: dashboard_revenue_trend_retrieve
+      description: Revenue trend over time (daily/weekly).
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/summary/:
+    get:
+      operationId: dashboard_summary_retrieve
+      description: Aggregated summary metrics.
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/top-customers/:
+    get:
+      operationId: dashboard_top_customers_retrieve
+      description: Top customers by total spend.
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/outlets/:
     get:
       operationId: outlets_list
@@ -326,13 +419,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Outlet'
+              $ref: '#/components/schemas/OutletRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Outlet'
+              $ref: '#/components/schemas/OutletRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Outlet'
+              $ref: '#/components/schemas/OutletRequest'
         required: true
       security:
       - jwtAuth: []
@@ -381,13 +474,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Outlet'
+              $ref: '#/components/schemas/OutletRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Outlet'
+              $ref: '#/components/schemas/OutletRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Outlet'
+              $ref: '#/components/schemas/OutletRequest'
         required: true
       security:
       - jwtAuth: []
@@ -414,13 +507,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOutlet'
+              $ref: '#/components/schemas/PatchedOutletRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOutlet'
+              $ref: '#/components/schemas/PatchedOutletRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOutlet'
+              $ref: '#/components/schemas/PatchedOutletRequest'
       security:
       - jwtAuth: []
       responses:
@@ -447,6 +540,275 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/packages/:
+    get:
+      operationId: packages_list
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: type
+        schema:
+          type: string
+          enum:
+          - fixed_duration
+          - happy_hour
+          - open_loss
+          - per_minute
+        description: |-
+          * `per_minute` - Per Minute
+          * `fixed_duration` - Fixed Duration
+          * `open_loss` - Open Loss
+          * `happy_hour` - Happy Hour
+      - in: query
+        name: valid_day_type
+        schema:
+          type: string
+          enum:
+          - all
+          - specific_day
+          - weekday
+          - weekend
+        description: |-
+          * `all` - All Days
+          * `weekday` - Weekday
+          * `weekend` - Weekend
+          * `specific_day` - Specific Day
+      tags:
+      - packages
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPackageList'
+          description: ''
+    post:
+      operationId: packages_create
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      tags:
+      - packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+          description: ''
+  /api/packages/{id}/:
+    get:
+      operationId: packages_retrieve
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this package.
+        required: true
+      tags:
+      - packages
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+          description: ''
+    put:
+      operationId: packages_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this package.
+        required: true
+      tags:
+      - packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+          description: ''
+    patch:
+      operationId: packages_partial_update
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this package.
+        required: true
+      tags:
+      - packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPackageRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPackageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPackageRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+          description: ''
+    delete:
+      operationId: packages_destroy
+      description: Base ViewSet that auto-scopes queryset to user's outlet (non-SuperAdmin).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this package.
+        required: true
+      tags:
+      - packages
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/payments/:
+    get:
+      operationId: payments_list
+      description: ViewSet untuk Payment — read-only untuk list/retrieve, create untuk
+        cash payment.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentListList'
+          description: ''
+    post:
+      operationId: payments_create
+      description: ViewSet untuk Payment — read-only untuk list/retrieve, create untuk
+        cash payment.
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePayment'
+          description: ''
+  /api/payments/{id}/:
+    get:
+      operationId: payments_retrieve
+      description: ViewSet untuk Payment — read-only untuk list/retrieve, create untuk
+        cash payment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this payment.
+        required: true
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDetail'
+          description: ''
   /api/pricing-rules/:
     get:
       operationId: pricing_rules_list
@@ -504,13 +866,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PricingRule'
+              $ref: '#/components/schemas/PricingRuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PricingRule'
+              $ref: '#/components/schemas/PricingRuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PricingRule'
+              $ref: '#/components/schemas/PricingRuleRequest'
         required: true
       security:
       - jwtAuth: []
@@ -559,13 +921,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PricingRule'
+              $ref: '#/components/schemas/PricingRuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PricingRule'
+              $ref: '#/components/schemas/PricingRuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PricingRule'
+              $ref: '#/components/schemas/PricingRuleRequest'
         required: true
       security:
       - jwtAuth: []
@@ -592,13 +954,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPricingRule'
+              $ref: '#/components/schemas/PatchedPricingRuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPricingRule'
+              $ref: '#/components/schemas/PatchedPricingRuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPricingRule'
+              $ref: '#/components/schemas/PatchedPricingRuleRequest'
       security:
       - jwtAuth: []
       responses:
@@ -649,13 +1011,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
       security:
       - jwtAuth: []
       responses:
@@ -674,13 +1036,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUserProfile'
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedUserProfile'
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedUserProfile'
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
       security:
       - jwtAuth: []
       responses:
@@ -689,6 +1051,98 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /api/receipts/:
+    get:
+      operationId: receipts_list
+      description: ViewSet untuk Receipt — list, retrieve, create, download.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - receipts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReceiptListList'
+          description: ''
+    post:
+      operationId: receipts_create
+      description: ViewSet untuk Receipt — list, retrieve, create, download.
+      tags:
+      - receipts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateReceiptRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GenerateReceiptRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GenerateReceiptRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateReceipt'
+          description: ''
+  /api/receipts/{id}/:
+    get:
+      operationId: receipts_retrieve
+      description: ViewSet untuk Receipt — list, retrieve, create, download.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Receipt.
+        required: true
+      tags:
+      - receipts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptDetail'
+          description: ''
+  /api/receipts/{id}/download/:
+    get:
+      operationId: receipts_download_retrieve
+      description: Download PDF receipt.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Receipt.
+        required: true
+      tags:
+      - receipts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptList'
           description: ''
   /api/schema/:
     get:
@@ -834,6 +1288,394 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/sessions/:
+    get:
+      operationId: sessions_list
+      description: |-
+        ViewSet untuk PlaySession.
+
+        - list/retrieve: semua authenticated user (dengan filtering by role)
+        - create/update/delete: officer/super_admin only untuk write
+        - custom actions: open, transfer_table, end_session, cancel_session, table_logs, table_log_detail
+      parameters:
+      - in: query
+        name: customer_phone
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: outlet
+        schema:
+          type: integer
+      - in: query
+        name: package
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: shift
+        schema:
+          type: integer
+      - in: query
+        name: started_at_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: started_at_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - completed
+          - running
+        description: |-
+          * `running` - Running
+          * `completed` - Completed
+          * `cancelled` - Cancelled
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlaySessionDetailList'
+          description: ''
+  /api/sessions/{id}/:
+    get:
+      operationId: sessions_retrieve
+      description: |-
+        ViewSet untuk PlaySession.
+
+        - list/retrieve: semua authenticated user (dengan filtering by role)
+        - create/update/delete: officer/super_admin only untuk write
+        - custom actions: open, transfer_table, end_session, cancel_session, table_logs, table_log_detail
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this play session.
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/sessions/{id}/table-logs/:
+    get:
+      operationId: sessions_table_logs_retrieve
+      description: GET /api/sessions/{id}/table-logs/ — List semua table logs untuk
+        satu sesi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this play session.
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/sessions/{id}/table-logs/{log_pk}/:
+    get:
+      operationId: sessions_table_logs_retrieve_2
+      description: GET /api/sessions/{id}/table-logs/{log_pk}/ — Detail satu table
+        log.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this play session.
+        required: true
+      - in: path
+        name: log_pk
+        schema:
+          type: string
+          pattern: ^[^/.]$
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/sessions/cancel-session/:
+    post:
+      operationId: sessions_cancel_session_create
+      description: POST /api/sessions/cancel-session/ — Batalkan sesi bermain.
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/sessions/end-session/:
+    post:
+      operationId: sessions_end_session_create
+      description: POST /api/sessions/end-session/ — Akhiri sesi bermain.
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/sessions/open/:
+    post:
+      operationId: sessions_open_create
+      description: POST /api/sessions/open/ — Buka sesi bermain baru.
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/sessions/transfer-table/:
+    post:
+      operationId: sessions_transfer_table_create
+      description: POST /api/sessions/transfer-table/ — Pindah meja.
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaySessionDetail'
+          description: ''
+  /api/shifts/:
+    get:
+      operationId: shifts_list
+      parameters:
+      - in: query
+        name: officer
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - closed
+          - open
+        description: |-
+          * `open` - Open
+          * `closed` - Closed
+      tags:
+      - shifts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedShiftList'
+          description: ''
+    post:
+      operationId: shifts_create
+      tags:
+      - shifts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+          description: ''
+  /api/shifts/{id}/:
+    get:
+      operationId: shifts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - shifts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+          description: ''
+    put:
+      operationId: shifts_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - shifts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+          description: ''
+    patch:
+      operationId: shifts_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - shifts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedShiftRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedShiftRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedShiftRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+          description: ''
+    delete:
+      operationId: shifts_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - shifts
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/table-types/:
     get:
       operationId: table_types_list
@@ -875,13 +1717,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TableType'
+              $ref: '#/components/schemas/TableTypeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TableType'
+              $ref: '#/components/schemas/TableTypeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TableType'
+              $ref: '#/components/schemas/TableTypeRequest'
         required: true
       security:
       - jwtAuth: []
@@ -930,13 +1772,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TableType'
+              $ref: '#/components/schemas/TableTypeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TableType'
+              $ref: '#/components/schemas/TableTypeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TableType'
+              $ref: '#/components/schemas/TableTypeRequest'
         required: true
       security:
       - jwtAuth: []
@@ -963,13 +1805,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedTableType'
+              $ref: '#/components/schemas/PatchedTableTypeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedTableType'
+              $ref: '#/components/schemas/PatchedTableTypeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedTableType'
+              $ref: '#/components/schemas/PatchedTableTypeRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1051,13 +1893,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Table'
+              $ref: '#/components/schemas/TableRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Table'
+              $ref: '#/components/schemas/TableRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Table'
+              $ref: '#/components/schemas/TableRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1106,13 +1948,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Table'
+              $ref: '#/components/schemas/TableRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Table'
+              $ref: '#/components/schemas/TableRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Table'
+              $ref: '#/components/schemas/TableRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1139,13 +1981,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedTable'
+              $ref: '#/components/schemas/PatchedTableRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedTable'
+              $ref: '#/components/schemas/PatchedTableRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedTable'
+              $ref: '#/components/schemas/PatchedTableRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1203,13 +2045,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Tenant'
+              $ref: '#/components/schemas/TenantRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Tenant'
+              $ref: '#/components/schemas/TenantRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Tenant'
+              $ref: '#/components/schemas/TenantRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1258,13 +2100,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Tenant'
+              $ref: '#/components/schemas/TenantRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Tenant'
+              $ref: '#/components/schemas/TenantRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Tenant'
+              $ref: '#/components/schemas/TenantRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1291,13 +2133,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedTenant'
+              $ref: '#/components/schemas/PatchedTenantRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedTenant'
+              $ref: '#/components/schemas/PatchedTenantRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedTenant'
+              $ref: '#/components/schemas/PatchedTenantRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1363,13 +2205,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1424,13 +2266,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: '#/components/schemas/UserCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1460,13 +2302,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUserCreate'
+              $ref: '#/components/schemas/PatchedUserCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedUserCreate'
+              $ref: '#/components/schemas/PatchedUserCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedUserCreate'
+              $ref: '#/components/schemas/PatchedUserCreateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1510,7 +2352,7 @@ components:
           type: string
           maxLength: 100
         type:
-          $ref: '#/components/schemas/TypeEnum'
+          $ref: '#/components/schemas/AdditionalFeeTypeEnum'
         value:
           type: string
           format: decimal
@@ -1536,19 +2378,151 @@ components:
       - type
       - updated_at
       - value
-    ChangePassword:
+    AdditionalFeeRequest:
+      type: object
+      properties:
+        outlet:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/AdditionalFeeTypeEnum'
+        value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        apply_to:
+          type: string
+          minLength: 1
+          maxLength: 50
+        is_active:
+          type: boolean
+      required:
+      - name
+      - outlet
+      - type
+      - value
+    AdditionalFeeTypeEnum:
+      enum:
+      - percentage
+      - fixed
+      type: string
+      description: |-
+        * `percentage` - Percentage
+        * `fixed` - Fixed
+    AuditLog:
+      type: object
+      description: Serializer read-only untuk AuditLog.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          nullable: true
+        user_name:
+          type: string
+          nullable: true
+          readOnly: true
+        outlet:
+          type: integer
+          readOnly: true
+          nullable: true
+        outlet_name:
+          type: string
+          nullable: true
+          readOnly: true
+        action:
+          type: string
+          readOnly: true
+        object_type:
+          type: string
+          readOnly: true
+        object_id:
+          type: integer
+          readOnly: true
+          nullable: true
+        changes:
+          readOnly: true
+        notes:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - changes
+      - created_at
+      - id
+      - notes
+      - object_id
+      - object_type
+      - outlet
+      - outlet_name
+      - user
+      - user_name
+    ChangePasswordRequest:
       type: object
       description: Serializer untuk ganti password.
       properties:
         old_password:
           type: string
           writeOnly: true
+          minLength: 1
         new_password:
           type: string
           writeOnly: true
+          minLength: 1
       required:
       - new_password
       - old_password
+    CreatePayment:
+      type: object
+      description: Serializer untuk input create payment.
+      properties:
+        session_id:
+          type: integer
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          default: cash
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        gateway_reference:
+          type: string
+          default: ''
+          maxLength: 255
+      required:
+      - amount
+      - session_id
+    CreatePaymentRequest:
+      type: object
+      description: Serializer untuk input create payment.
+      properties:
+        session_id:
+          type: integer
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          default: cash
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        gateway_reference:
+          type: string
+          default: ''
+          maxLength: 255
+      required:
+      - amount
+      - session_id
     DayTypeEnum:
       enum:
       - weekday
@@ -1559,6 +2533,22 @@ components:
         * `weekday` - Weekday
         * `weekend` - Weekend
         * `specific_day` - Specific Day
+    GenerateReceipt:
+      type: object
+      description: Request serializer untuk generate receipt.
+      properties:
+        session_id:
+          type: integer
+      required:
+      - session_id
+    GenerateReceiptRequest:
+      type: object
+      description: Request serializer untuk generate receipt.
+      properties:
+        session_id:
+          type: integer
+      required:
+      - session_id
     Login:
       type: object
       description: Serializer untuk login — menerima username & password, return JWT
@@ -1566,12 +2556,35 @@ components:
       properties:
         username:
           type: string
+      required:
+      - username
+    LoginRequest:
+      type: object
+      description: Serializer untuk login — menerima username & password, return JWT
+        token.
+      properties:
+        username:
+          type: string
+          minLength: 1
         password:
           type: string
           writeOnly: true
+          minLength: 1
       required:
       - password
       - username
+    MethodEnum:
+      enum:
+      - cash
+      - qris
+      - e_wallet
+      - card
+      type: string
+      description: |-
+        * `cash` - Cash
+        * `qris` - QRIS
+        * `e_wallet` - E-Wallet
+        * `card` - Card
     Outlet:
       type: object
       description: Serializer untuk Outlet CRUD.
@@ -1608,6 +2621,145 @@ components:
       - name
       - tenant
       - tenant_name
+    OutletRequest:
+      type: object
+      description: Serializer untuk Outlet CRUD.
+      properties:
+        tenant:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        address:
+          type: string
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 50
+        is_active:
+          type: boolean
+      required:
+      - code
+      - name
+      - tenant
+    Package:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        name:
+          type: string
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/PackageTypeEnum'
+        duration_minutes:
+          type: integer
+          nullable: true
+        fixed_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        valid_day_type:
+          $ref: '#/components/schemas/ValidDayTypeEnum'
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+        valid_start_time:
+          type: string
+          format: time
+          nullable: true
+        valid_end_time:
+          type: string
+          format: time
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - outlet
+      - type
+      - updated_at
+    PackageRequest:
+      type: object
+      properties:
+        outlet:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/PackageTypeEnum'
+        duration_minutes:
+          type: integer
+          nullable: true
+        fixed_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        valid_day_type:
+          $ref: '#/components/schemas/ValidDayTypeEnum'
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+        valid_start_time:
+          type: string
+          format: time
+          nullable: true
+        valid_end_time:
+          type: string
+          format: time
+          nullable: true
+        is_active:
+          type: boolean
+      required:
+      - name
+      - outlet
+      - type
+    PackageTypeEnum:
+      enum:
+      - per_minute
+      - fixed_duration
+      - open_loss
+      - happy_hour
+      type: string
+      description: |-
+        * `per_minute` - Per Minute
+        * `fixed_duration` - Fixed Duration
+        * `open_loss` - Open Loss
+        * `happy_hour` - Happy Hour
     PaginatedAdditionalFeeList:
       type: object
       properties:
@@ -1628,6 +2780,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AdditionalFee'
+    PaginatedAuditLogList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
     PaginatedOutletList:
       type: object
       properties:
@@ -1648,6 +2820,66 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Outlet'
+    PaginatedPackageList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Package'
+    PaginatedPaymentListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentList'
+    PaginatedPlaySessionDetailList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaySessionDetail'
     PaginatedPricingRuleList:
       type: object
       properties:
@@ -1668,6 +2900,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PricingRule'
+    PaginatedReceiptListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptList'
+    PaginatedShiftList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Shift'
     PaginatedTableList:
       type: object
       properties:
@@ -1748,71 +3020,92 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserList'
-    PatchedAdditionalFee:
+    PatchedAdditionalFeeRequest:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         outlet:
           type: integer
         name:
           type: string
+          minLength: 1
           maxLength: 100
         type:
-          $ref: '#/components/schemas/TypeEnum'
+          $ref: '#/components/schemas/AdditionalFeeTypeEnum'
         value:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
         apply_to:
           type: string
+          minLength: 1
           maxLength: 50
         is_active:
           type: boolean
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-    PatchedOutlet:
+    PatchedOutletRequest:
       type: object
       description: Serializer untuk Outlet CRUD.
       properties:
-        id:
-          type: integer
-          readOnly: true
         tenant:
           type: integer
-        tenant_name:
-          type: string
-          readOnly: true
         name:
           type: string
+          minLength: 1
           maxLength: 100
         code:
           type: string
+          minLength: 1
           maxLength: 20
         address:
           type: string
         timezone:
           type: string
+          minLength: 1
           maxLength: 50
         is_active:
           type: boolean
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-    PatchedPricingRule:
+    PatchedPackageRequest:
       type: object
       properties:
-        id:
+        outlet:
           type: integer
-          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/PackageTypeEnum'
+        duration_minutes:
+          type: integer
+          nullable: true
+        fixed_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        valid_day_type:
+          $ref: '#/components/schemas/ValidDayTypeEnum'
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+        valid_start_time:
+          type: string
+          format: time
+          nullable: true
+        valid_end_time:
+          type: string
+          format: time
+          nullable: true
+        is_active:
+          type: boolean
+    PatchedPricingRuleRequest:
+      type: object
+      properties:
         outlet:
           type: integer
         table_type:
@@ -1821,6 +3114,7 @@ components:
           description: Leave blank to apply to all table types.
         name:
           type: string
+          minLength: 1
           maxLength: 100
         day_type:
           $ref: '#/components/schemas/DayTypeEnum'
@@ -1842,82 +3136,71 @@ components:
           type: integer
         is_active:
           type: boolean
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-    PatchedTable:
+    PatchedShiftRequest:
       type: object
       properties:
-        id:
+        outlet:
           type: integer
-          readOnly: true
+        officer:
+          type: integer
+        opening_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        closing_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ShiftStatusEnum'
+        notes:
+          type: string
+    PatchedTableRequest:
+      type: object
+      properties:
         outlet:
           type: integer
         name:
           type: string
+          minLength: 1
           maxLength: 100
         table_type:
           type: integer
         status:
-          $ref: '#/components/schemas/StatusEnum'
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-    PatchedTableType:
+          $ref: '#/components/schemas/TableStatusEnum'
+    PatchedTableTypeRequest:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         outlet:
           type: integer
         name:
           type: string
+          minLength: 1
           maxLength: 100
         description:
           type: string
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-    PatchedTenant:
+    PatchedTenantRequest:
       type: object
       description: Serializer untuk Tenant CRUD.
       properties:
-        id:
-          type: integer
-          readOnly: true
         name:
           type: string
+          minLength: 1
           maxLength: 100
         code:
           type: string
+          minLength: 1
           maxLength: 20
         is_active:
           type: boolean
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-    PatchedUserCreate:
+    PatchedUserCreateRequest:
       type: object
       description: Serializer untuk membuat user baru (oleh Admin/Super Admin).
       properties:
-        id:
-          type: integer
-          readOnly: true
         username:
           type: string
+          minLength: 1
           maxLength: 50
         email:
           type: string
@@ -1931,22 +3214,17 @@ components:
         password:
           type: string
           writeOnly: true
+          minLength: 1
         tenant:
           type: integer
           nullable: true
         outlet:
           type: integer
           nullable: true
-    PatchedUserProfile:
+    PatchedUserProfileRequest:
       type: object
       description: Serializer untuk profile user yang sedang login.
       properties:
-        id:
-          type: integer
-          readOnly: true
-        username:
-          type: string
-          readOnly: true
         email:
           type: string
           format: email
@@ -1954,23 +3232,226 @@ components:
         phone:
           type: string
           maxLength: 20
-        role:
-          allOf:
-          - $ref: '#/components/schemas/RoleEnum'
+    PaymentDetail:
+      type: object
+      description: Serializer lengkap untuk detail view.
+      properties:
+        id:
+          type: integer
           readOnly: true
-        tenant_name:
+        session_id:
+          type: integer
+          readOnly: true
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        status:
+          $ref: '#/components/schemas/StatusBf0Enum'
+        amount:
           type: string
-          readOnly: true
-        outlet_name:
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        gateway_reference:
           type: string
-          readOnly: true
-        is_active:
-          type: boolean
-          readOnly: true
-        date_joined:
+          maxLength: 255
+        paid_at:
           type: string
           format: date-time
           readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: integer
+        created_by_username:
+          type: string
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        table_name:
+          type: string
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - created_by
+      - created_by_username
+      - customer_name
+      - id
+      - paid_at
+      - session_id
+      - table_name
+    PaymentList:
+      type: object
+      description: Serializer ringkas untuk list view.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        session_id:
+          type: integer
+          readOnly: true
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        status:
+          $ref: '#/components/schemas/StatusBf0Enum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        paid_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by_username:
+          type: string
+          readOnly: true
+      required:
+      - amount
+      - created_by_username
+      - id
+      - paid_at
+      - session_id
+    PlaySessionDetail:
+      type: object
+      description: Serializer detail PlaySession dengan nested table_logs.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+          readOnly: true
+        outlet_name:
+          type: string
+          nullable: true
+          readOnly: true
+        shift:
+          type: integer
+          readOnly: true
+          description: Shift aktif officer saat sesi dibuka.
+        shift_officer_name:
+          type: string
+          nullable: true
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        customer_phone:
+          type: string
+          readOnly: true
+        initial_table:
+          type: integer
+          readOnly: true
+          description: Meja pertama saat sesi dibuka.
+        initial_table_name:
+          type: string
+          nullable: true
+          readOnly: true
+        package:
+          type: integer
+          readOnly: true
+          nullable: true
+        package_name:
+          type: string
+          nullable: true
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PlaySessionDetailStatusEnum'
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ended_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        officer_start:
+          type: integer
+          readOnly: true
+        officer_start_name:
+          type: string
+          nullable: true
+          readOnly: true
+        officer_end:
+          type: integer
+          readOnly: true
+          nullable: true
+        officer_end_name:
+          type: string
+          nullable: true
+          readOnly: true
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          description: Total biaya permainan (sum table_log amounts atau fixed_price
+            package).
+        additional_fee_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        cancel_reason:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        table_logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTableLogNested'
+          readOnly: true
+      required:
+      - additional_fee_total
+      - cancel_reason
+      - created_at
+      - customer_name
+      - customer_phone
+      - ended_at
+      - id
+      - initial_table
+      - initial_table_name
+      - officer_end
+      - officer_end_name
+      - officer_start
+      - officer_start_name
+      - outlet
+      - outlet_name
+      - package
+      - package_name
+      - shift
+      - shift_officer_name
+      - started_at
+      - status
+      - subtotal
+      - table_logs
+      - total_amount
+    PlaySessionDetailStatusEnum:
+      enum:
+      - running
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `running` - Running
+        * `completed` - Completed
+        * `cancelled` - Cancelled
     PricingRule:
       type: object
       properties:
@@ -2023,6 +3504,142 @@ components:
       - price_per_minute
       - start_time
       - updated_at
+    PricingRuleRequest:
+      type: object
+      properties:
+        outlet:
+          type: integer
+        table_type:
+          type: integer
+          nullable: true
+          description: Leave blank to apply to all table types.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        day_type:
+          $ref: '#/components/schemas/DayTypeEnum'
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        priority:
+          type: integer
+        is_active:
+          type: boolean
+      required:
+      - end_time
+      - name
+      - outlet
+      - price_per_minute
+      - start_time
+    RateSourceTypeEnum:
+      enum:
+      - pricing_rule
+      - package_rate
+      type: string
+      description: |-
+        * `pricing_rule` - Pricing Rule
+        * `package_rate` - Package Rate
+    ReceiptDetail:
+      type: object
+      description: Detail receipt.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        session_id:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        outlet_name:
+          type: string
+          readOnly: true
+        invoice_number:
+          type: string
+          readOnly: true
+        pdf_file:
+          type: string
+          format: uri
+          readOnly: true
+        printed_by:
+          type: integer
+          readOnly: true
+        printed_by_name:
+          type: string
+          readOnly: true
+        printed_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - customer_name
+      - id
+      - invoice_number
+      - outlet_name
+      - pdf_file
+      - printed_at
+      - printed_by
+      - printed_by_name
+      - session_id
+      - total_amount
+    ReceiptList:
+      type: object
+      description: List receipt (ringan).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        session_id:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        invoice_number:
+          type: string
+          readOnly: true
+        printed_by_name:
+          type: string
+          readOnly: true
+        printed_at:
+          type: string
+          format: date-time
+          readOnly: true
+        pdf_file:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - customer_name
+      - id
+      - invoice_number
+      - pdf_file
+      - printed_at
+      - printed_by_name
+      - session_id
     RoleEnum:
       enum:
       - super_admin
@@ -2035,18 +3652,152 @@ components:
         * `owner` - Owner
         * `admin` - Admin
         * `officer` - Officer
-    StatusEnum:
+    SessionTableLogNested:
+      type: object
+      description: Nested read-only serializer untuk table logs di dalam PlaySession.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        table:
+          type: integer
+          readOnly: true
+        table_name:
+          type: string
+          nullable: true
+          readOnly: true
+        rate_source_type:
+          allOf:
+          - $ref: '#/components/schemas/RateSourceTypeEnum'
+          readOnly: true
+        rate_source_snapshot:
+          readOnly: true
+          description: Salinan tarif yang berlaku saat segmen ini berjalan.
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ended_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        duration_minutes:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+      required:
+      - amount
+      - duration_minutes
+      - ended_at
+      - id
+      - rate_source_snapshot
+      - rate_source_type
+      - started_at
+      - table
+      - table_name
+    Shift:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        outlet:
+          type: integer
+        officer:
+          type: integer
+        opening_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        closing_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        expected_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          description: opening_cash + total cash payment selama shift (dihitung sistem
+            saat tutup)
+        difference:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          description: closing_cash - expected_cash
+        status:
+          $ref: '#/components/schemas/ShiftStatusEnum'
+        opened_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        notes:
+          type: string
+      required:
+      - closed_at
+      - difference
+      - expected_cash
+      - id
+      - opened_at
+      - opening_cash
+    ShiftRequest:
+      type: object
+      properties:
+        outlet:
+          type: integer
+        officer:
+          type: integer
+        opening_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        closing_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ShiftStatusEnum'
+        notes:
+          type: string
+      required:
+      - opening_cash
+    ShiftStatusEnum:
       enum:
-      - available
-      - occupied
-      - maintenance
-      - reserved
+      - open
+      - closed
       type: string
       description: |-
-        * `available` - Available
-        * `occupied` - Occupied
-        * `maintenance` - Maintenance
-        * `reserved` - Reserved
+        * `open` - Open
+        * `closed` - Closed
+    StatusBf0Enum:
+      enum:
+      - pending
+      - paid
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `paid` - Paid
+        * `failed` - Failed
     Table:
       type: object
       properties:
@@ -2061,7 +3812,7 @@ components:
         table_type:
           type: integer
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/TableStatusEnum'
         created_at:
           type: string
           format: date-time
@@ -2077,6 +3828,35 @@ components:
       - outlet
       - table_type
       - updated_at
+    TableRequest:
+      type: object
+      properties:
+        outlet:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        table_type:
+          type: integer
+        status:
+          $ref: '#/components/schemas/TableStatusEnum'
+      required:
+      - name
+      - outlet
+      - table_type
+    TableStatusEnum:
+      enum:
+      - available
+      - occupied
+      - maintenance
+      - reserved
+      type: string
+      description: |-
+        * `available` - Available
+        * `occupied` - Occupied
+        * `maintenance` - Maintenance
+        * `reserved` - Reserved
     TableType:
       type: object
       properties:
@@ -2097,6 +3877,20 @@ components:
       required:
       - created_at
       - id
+      - name
+      - outlet
+    TableTypeRequest:
+      type: object
+      properties:
+        outlet:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+      required:
       - name
       - outlet
     Tenant:
@@ -2123,6 +3917,23 @@ components:
       - created_at
       - id
       - name
+    TenantRequest:
+      type: object
+      description: Serializer untuk Tenant CRUD.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        is_active:
+          type: boolean
+      required:
+      - code
+      - name
     TokenRefresh:
       type: object
       properties:
@@ -2134,14 +3945,14 @@ components:
       required:
       - access
       - refresh
-    TypeEnum:
-      enum:
-      - percentage
-      - fixed
-      type: string
-      description: |-
-        * `percentage` - Percentage
-        * `fixed` - Fixed
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
     UserCreate:
       type: object
       description: Serializer untuk membuat user baru (oleh Admin/Super Admin).
@@ -2161,9 +3972,6 @@ components:
           maxLength: 20
         role:
           $ref: '#/components/schemas/RoleEnum'
-        password:
-          type: string
-          writeOnly: true
         tenant:
           type: integer
           nullable: true
@@ -2172,6 +3980,35 @@ components:
           nullable: true
       required:
       - id
+      - username
+    UserCreateRequest:
+      type: object
+      description: Serializer untuk membuat user baru (oleh Admin/Super Admin).
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        tenant:
+          type: integer
+          nullable: true
+        outlet:
+          type: integer
+          nullable: true
+      required:
       - password
       - username
     UserList:
@@ -2236,6 +4073,29 @@ components:
       - role
       - tenant_name
       - username
+    UserProfileRequest:
+      type: object
+      description: Serializer untuk profile user yang sedang login.
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+    ValidDayTypeEnum:
+      enum:
+      - all
+      - weekday
+      - weekend
+      - specific_day
+      type: string
+      description: |-
+        * `all` - All Days
+        * `weekday` - Weekday
+        * `weekend` - Weekend
+        * `specific_day` - Specific Day
   securitySchemes:
     jwtAuth:
       type: http
